@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\models\query\ArticleQuery;
+use phpDocumentor\Reflection\Types\Self_;
 use trntv\filekit\behaviors\UploadBehavior;
 use Yii;
 use yii\behaviors\BlameableBehavior;
@@ -10,12 +11,16 @@ use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
+use yii\helpers\Console;
+use yii\httpclient\Client;
 /**
  * This is the model class for table "article".
  *
  * @property integer $id
+ * @property integer $id_third
  * @property string $slug
  * @property string $title
+ * @property string $summary
  * @property string $body
  * @property string $view
  * @property string $thumbnail_base_url
@@ -28,6 +33,7 @@ use yii\db\ActiveRecord;
  * @property integer $updated_by
  * @property integer $created_at
  * @property integer $updated_at
+ * @property integer $source
  *
  * @property User $author
  * @property User $updater
@@ -105,7 +111,7 @@ class Article extends ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'body', 'category_id'], 'required'],
+            [['title','summary', 'body', 'category_id'], 'required'],
             [['slug'], 'unique'],
             [['body'], 'string'],
             [['published_at'], 'default', 'value' => function () {
@@ -115,9 +121,9 @@ class Article extends ActiveRecord
             [['category_id'], 'exist', 'targetClass' => ArticleCategory::className(), 'targetAttribute' => 'id'],
             [['status'], 'integer'],
             [['slug', 'thumbnail_base_url', 'thumbnail_path'], 'string', 'max' => 1024],
-            [['title'], 'string', 'max' => 512],
+            [['title','summary'], 'string', 'max' => 512],
             [['view'], 'string', 'max' => 255],
-            [['attachments', 'thumbnail'], 'safe']
+            [['attachments','id_third', 'thumbnail','source'], 'safe']
         ];
     }
 
@@ -128,8 +134,10 @@ class Article extends ActiveRecord
     {
         return [
             'id' => Yii::t('common', 'ID'),
+            'id_third' => '第三方ID',
             'slug' => Yii::t('common', 'Slug'),
             'title' => Yii::t('common', 'Title'),
+            'summary' => '副标题',
             'body' => Yii::t('common', 'Body'),
             'view' => Yii::t('common', 'Article View'),
             'thumbnail' => Yii::t('common', 'Thumbnail'),
@@ -139,7 +147,8 @@ class Article extends ActiveRecord
             'created_by' => Yii::t('common', 'Author'),
             'updated_by' => Yii::t('common', 'Updater'),
             'created_at' => Yii::t('common', 'Created At'),
-            'updated_at' => Yii::t('common', 'Updated At')
+            'updated_at' => Yii::t('common', 'Updated At'),
+            'source' => '来源'
         ];
     }
 
@@ -173,5 +182,57 @@ class Article extends ActiveRecord
     public function getArticleAttachments()
     {
         return $this->hasMany(ArticleAttachment::className(), ['article_id' => 'id']);
+    }public static function FindNewsFromDongQiuDi(){
+    //http://api.dongqiudi.com/app/tabs/iphone/58.json
+    $client = new Client(['baseUrl' => 'http://api.dongqiudi.com']);
+    $res = $client->get('app/tabs/iphone/58.json')->send();
+    $datas = $res->data['articles'];
+    foreach ($datas as $n){
+        $news = static::findOne(['id_third'=>$n['id']]);
+        if($news !== null){
+            continue;
+        }
+        else{
+            $news = new self();
+        }
+        $news->category_id = self::STATUS_PUBLISHED;
+        $news->id_third = $n['id'];
+        $thumb = parse_url($n['thumb']);
+        $news->thumbnail_base_url = $thumb['scheme'].'://'.$thumb['host'];
+        $news->thumbnail_path = $thumb['path'];
+        $news->title = $n['title'];
+        $news->source = 'dongqiudi';
+        $news->published_at = time();
+        $news->summary = $n['title'];
+        $news->body = $client->get('article/'.$news->id_third.'.html')->send()->content;
+        include_once __DIR__."/../../common/lib/simple_html_dom.php";
+        $html = new \simple_html_dom();
+        $html->load($news->body);
+        $articles = $html->find('article');
+        $news->body = (string)$articles[0];
+        $news->body  = str_replace('data-src','src',$news->body);
+        $news->body  = str_replace('更多靠谱推荐，请戳','',$news->body);
+        $news->body  = str_replace('【足球彩票圈】','',$news->body);
+
+
+
+
+        $news->body = '<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+    <!-- <meta content="width=640, user-scalable=no, target-densitydpi=device-dpi" name="viewport"> -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+'.$news->body;
+        $re = $news->save();
+        if(!$re){
+            Console::output(json_encode($news->errors));
+        }
     }
+}
+
+
+
 }
