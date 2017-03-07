@@ -9,17 +9,13 @@ use yii\web\Link;
 /**
  * @author Eugene Terentev <eugene@terentev.net>
  */
-class Article extends \common\models\Article implements Linkable
+class ArticleComment extends \common\models\ArticleComment implements Linkable
 {
     public function fields()
     {
-        return ['id', 'category_id', 'title','summary','thumbnail', 'body', 'published_at'];
+        return ['id','article_id','user_id',  'content', 'created_at'];
     }
 
-    public function extraFields()
-    {
-        return ['category'];
-    }
 
     /**
      * Returns a list of links.
@@ -29,7 +25,7 @@ class Article extends \common\models\Article implements Linkable
     public function getLinks()
     {
         return [
-            Link::REL_SELF => Url::to(['article/view', 'id' => $this->id], true)
+            Link::REL_SELF => Url::to(['article-comment/view', 'id' => $this->id], true)
         ];
     }
 }
