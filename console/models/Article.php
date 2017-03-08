@@ -40,11 +40,15 @@ class Article extends CommonArticle
         ];
     }
 
-
-    public static function FindNewsFromDongQiuDi(){
+    /**
+     * 抓取懂球帝的新闻
+     * @param $thirdId 分类
+     * @param $categoryId 分类
+     */
+    public static function FindNewsFromDongQiuDi($thirdId,$categoryId){
     //http://api.dongqiudi.com/app/tabs/iphone/58.json
     $client = new Client(['baseUrl' => 'http://api.dongqiudi.com']);
-    $res = $client->get('app/tabs/iphone/58.json')->send();
+    $res = $client->get("app/tabs/iphone/$thirdId.json")->send();
     $datas = $res->data['articles'];
     $i=0;
     foreach ($datas as $n){
@@ -56,7 +60,7 @@ class Article extends CommonArticle
             $news = new self();
             $i++;
         }
-        $news->category_id = 1;
+        $news->category_id = $categoryId;
         $news->status =  self::STATUS_PUBLISHED;
         $news->id_third = $n['id'];
         $thumb = parse_url($n['thumb']);
