@@ -47,8 +47,14 @@ class ArticleController extends ActiveController
      */
     public function prepareDataProvider()
     {
+        $params = Yii::$app->getRequest()->getQueryParams();
+        if(isset($params['fields'])) unset($params['fields']);
+        if(isset($params['expand'])) unset($params['expand']);
+        if(isset($params['page'])) unset($params['page']);
+        if(isset($params['per-page'])) unset($params['per-page']);
+        //var_dump($params);exit;
         return new ActiveDataProvider(array(
-            'query' => Article::find()->published()
+            'query' => Article::find()->where($params)->published()
         ));
     }
 
