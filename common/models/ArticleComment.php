@@ -3,6 +3,7 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "{{%article_comment}}".
@@ -23,14 +24,22 @@ class ArticleComment extends \yii\db\ActiveRecord
     {
         return '{{%article_comment}}';
     }
-
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::className(),
+        ];
+    }
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['article_id', 'user_id', 'content', 'created_at', 'updated_at'], 'required'],
+            [['article_id', 'user_id', 'content'], 'required'],
             [['article_id', 'user_id', 'created_at', 'updated_at'], 'integer'],
             [['content'], 'string', 'max' => 1024],
         ];

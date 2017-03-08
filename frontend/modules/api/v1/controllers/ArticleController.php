@@ -18,14 +18,7 @@ class ArticleController extends ActiveController
      * @var string
      */
     public $modelClass = 'frontend\modules\api\v1\resources\Article';
-    /**
-     * @var array
-     */
-    public $serializer = [
-        'class' => 'yii\rest\Serializer',
-        //'collectionEnvelope' => 'items'
-        'collectionEnvelope' => 'data'
-    ];
+
 
     /**
      * @inheritdoc

@@ -7,7 +7,6 @@ use yii\data\ActiveDataProvider;
 use yii\rest\ActiveController;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
-
 /**
  * Class ArticleController
  * @author Eugene Terentev <eugene@terentev.net>
@@ -18,14 +17,6 @@ class ArticleCommentController extends ActiveController
      * @var string
      */
     public $modelClass = 'frontend\modules\api\v1\resources\ArticleComment';
-    /**
-     * @var array
-     */
-    public $serializer = [
-        'class' => 'yii\rest\Serializer',
-        //'collectionEnvelope' => 'items'
-        'collectionEnvelope' => 'data'
-    ];
 
     /**
      * @inheritdoc
@@ -54,6 +45,8 @@ class ArticleCommentController extends ActiveController
             ]
         ];
     }
+
+
 
     /**
      * @return ActiveDataProvider
