@@ -16,7 +16,7 @@ use yii\web\IdentityInterface;
  * @property integer $id
  * @property string $username
  * @property string $password_hash
- * @property string $email
+ * @property string $mobile
  * @property string $auth_key
  * @property string $access_token
  * @property string $oauth_client
@@ -94,7 +94,7 @@ class User extends ActiveRecord implements IdentityInterface
             parent::scenarios(),
             [
                 'oauth_create' => [
-                    'oauth_client', 'oauth_client_user_id', 'email', 'username', '!status'
+                    'oauth_client', 'oauth_client_user_id', 'mobile', 'username', '!status'
                 ]
             ]
         );
@@ -107,7 +107,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'email'], 'unique'],
+            [['username', 'mobile'], 'unique'],
             ['status', 'default', 'value' => self::STATUS_NOT_ACTIVE],
             ['status', 'in', 'range' => array_keys(self::statuses())],
             [['username'], 'filter', 'filter' => '\yii\helpers\Html::encode']
@@ -121,7 +121,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             'username' => Yii::t('common', 'Username'),
-            'email' => Yii::t('common', 'E-mail'),
+            'mobile' => Yii::t('common', 'Mobile'),
             'status' => Yii::t('common', 'Status'),
             'access_token' => Yii::t('common', 'API access token'),
             'created_at' => Yii::t('common', 'Created at'),
@@ -175,7 +175,21 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Finds user by username or email
+     * Finds user by mobile
+     *
+     * @param string $mobile
+     * @return static|null
+     */
+    public static function findByMobile($mobile)
+    {
+        return static::find()
+            ->active()
+            ->andWhere(['mobile' => $mobile])
+            ->one();
+    }
+
+    /**
+     * Finds user by username or mobile
      *
      * @param string $login
      * @return static|null
@@ -184,7 +198,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return static::find()
             ->active()
-            ->andWhere(['or', ['username' => $login], ['email' => $login]])
+            ->andWhere(['or', ['username' => $login], ['mobile' => $login]])
             ->one();
     }
 
@@ -283,6 +297,6 @@ class User extends ActiveRecord implements IdentityInterface
         if ($this->username) {
             return $this->username;
         }
-        return $this->email;
+        return $this->mobile;
     }
 }

@@ -3,14 +3,17 @@ namespace frontend\modules\user\models;
 
 use cheatsheet\Time;
 use common\commands\SendEmailCommand;
+use common\lib\Sms;
 use common\models\User;
 use common\models\UserToken;
 use frontend\modules\user\Module;
+use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\Model;
 use Yii;
 use yii\helpers\Url;
 
+use yii\web\ServerErrorHttpException;
 /**
  * Signup form
  */
@@ -23,12 +26,24 @@ class SignupForm extends Model
     /**
      * @var
      */
-    public $email;
+    public $mobile;
     /**
      * @var
      */
     public $password;
+    /**
+     * @var 手机验证码
+     */
+    public $code;
 
+    public function afterValidate()
+    {
+        parent::afterValidate();
+        if ($this->hasErrors()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+        }
+    }
     /**
      * @inheritdoc
      */
@@ -43,16 +58,19 @@ class SignupForm extends Model
             ],
             ['username', 'string', 'min' => 2, 'max' => 255],
 
-            ['email', 'filter', 'filter' => 'trim'],
-            ['email', 'required'],
-            ['email', 'email'],
-            ['email', 'unique',
+            ['mobile', 'filter', 'filter' => 'trim'],
+            ['mobile', 'required'],
+            ['mobile', 'validateMobile'],// 验证手机号
+            ['mobile', 'unique',
                 'targetClass'=> '\common\models\User',
-                'message' => Yii::t('frontend', 'This email address has already been taken.')
+                'message' => Yii::t('frontend', 'This mobile address has already been taken.')
             ],
 
             ['password', 'required'],
             ['password', 'string', 'min' => 6],
+
+            ['code', 'required'],
+            ['code', 'checkCode'],
         ];
     }
 
@@ -63,7 +81,7 @@ class SignupForm extends Model
     {
         return [
             'username'=>Yii::t('frontend', 'Username'),
-            'email'=>Yii::t('frontend', 'E-mail'),
+            'mobile'=>Yii::t('frontend', 'Mobile'),
             'password'=>Yii::t('frontend', 'Password'),
         ];
     }
@@ -79,12 +97,12 @@ class SignupForm extends Model
             $shouldBeActivated = $this->shouldBeActivated();
             $user = new User();
             $user->username = $this->username;
-            $user->email = $this->email;
+            $user->mobile = $this->mobile;
             $user->status = $shouldBeActivated ? User::STATUS_NOT_ACTIVE : User::STATUS_ACTIVE;
             $user->setPassword($this->password);
             if(!$user->save()) {
                 throw new Exception("User couldn't be  saved");
-            };
+            }
             $user->afterSignup();
             if ($shouldBeActivated) {
                 $token = UserToken::create(
@@ -93,9 +111,9 @@ class SignupForm extends Model
                     Time::SECONDS_IN_A_DAY
                 );
                 Yii::$app->commandBus->handle(new SendEmailCommand([
-                    'subject' => Yii::t('frontend', 'Activation email'),
+                    'subject' => Yii::t('frontend', 'Activation mobile'),
                     'view' => 'activation',
-                    'to' => $this->email,
+                    'to' => $this->mobile,
                     'params' => [
                         'url' => Url::to(['/user/sign-in/activation', 'token' => $token->token], true)
                     ]
@@ -120,6 +138,35 @@ class SignupForm extends Model
             return true;
         } else {
             return false;
+        }
+    }
+
+    /**
+     * 检验手机验证码
+     */
+    public function checkCode(){
+        if(Sms::checkCode($this->mobile,$this->code)){
+            return true;
+        }else{
+            $this->addError('code','手机验证码不正确');
+            return false;
+        }
+    }
+    /**
+     * Validates the Mobile.
+     * This method serves as the inline validation for Mobile.
+     */
+    public function validateMobile()
+    {
+        if(preg_match("/^1[34578]\d{9}$/", $this->mobile)){
+            $user = User::findByMobile($this->mobile);
+            if(!$user){
+                return true;
+            }else{
+                $this->addError('mobile','手机已注册');
+            }
+        }else{
+            $this->addError('mobile','手机格式不正确');
         }
     }
 }

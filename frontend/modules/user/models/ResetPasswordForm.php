@@ -1,6 +1,7 @@
 <?php
 namespace frontend\modules\user\models;
 
+use common\lib\Sms;
 use common\models\User;
 use common\models\UserToken;
 use yii\base\InvalidParamException;
@@ -15,36 +16,29 @@ class ResetPasswordForm extends Model
     /**
      * @var
      */
+    public $mobile;
+    /**
+     * @var
+     */
     public $password;
+    /**
+     * @var
+     */
+    public $code;
 
     /**
      * @var \common\models\UserToken
      */
-    private $token;
+    //private $token;
 
-    /**
-     * Creates a form model given a token.
-     *
-     * @param  string                          $token
-     * @param  array                           $config name-value pairs that will be used to initialize the object properties
-     * @throws \yii\base\InvalidParamException if token is empty or not valid
-     */
-    public function __construct($token, $config = [])
+
+    public function afterValidate()
     {
-        if (empty($token) || !is_string($token)) {
-            throw new InvalidParamException('Password reset token cannot be blank.');
+        parent::afterValidate();
+        if ($this->hasErrors()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
         }
-        /** @var UserToken $tokenModel */
-        $this->token = UserToken::find()
-            ->notExpired()
-            ->byType(UserToken::TYPE_PASSWORD_RESET)
-            ->byToken($token)
-            ->one();
-
-        if (!$this->token) {
-            throw new InvalidParamException('Wrong password reset token.');
-        }
-        parent::__construct($config);
     }
 
     /**
@@ -53,7 +47,10 @@ class ResetPasswordForm extends Model
     public function rules()
     {
         return [
-            ['password', 'required'],
+            [['mobile','code','password'], 'required'],
+            ['mobile','string','min'=>11,'max'=>'11'],
+            ['mobile','validateMobile'],
+            ['code','checkCode'],
             ['password', 'string', 'min' => 6],
         ];
     }
@@ -65,13 +62,17 @@ class ResetPasswordForm extends Model
      */
     public function resetPassword()
     {
-        $user = $this->token->user;
+        $user = User::findByMobile($this->mobile);
         $user->password = $this->password;
         if($user->save()) {
-            $this->token->delete();
-        };
+            Yii::$app->cache->delete('sendCode'.$this->mobile);
+            return $user;
+        }else{
+            $this->addError('password','修改密码失败');
+            return false;
+        }
 
-        return true;
+
     }
 
     /**
@@ -82,5 +83,33 @@ class ResetPasswordForm extends Model
         return [
             'password'=>Yii::t('frontend', 'Password')
         ];
+    }
+    /**
+     * 检验手机验证码
+     */
+    public function checkCode(){
+        if(Sms::checkCode($this->mobile,$this->code)){
+            return true;
+        }else{
+            $this->addError('code','手机验证码不正确');
+            return false;
+        }
+    }
+    /**
+     * Validates the Mobile.
+     * This method serves as the inline validation for Mobile.
+     */
+    public function validateMobile()
+    {
+        if(preg_match("/^1[34578]\d{9}$/", $this->mobile)){
+            $user = User::findByMobile($this->mobile);
+            if($user){
+                return true;
+            }else{
+                $this->addError('mobile','手机未注册');
+            }
+        }else{
+            $this->addError('mobile','手机格式不正确');
+        }
     }
 }

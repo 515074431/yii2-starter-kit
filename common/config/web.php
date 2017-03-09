@@ -1,4 +1,8 @@
 <?php
+
+$params = array_merge(
+    require(__DIR__ . '/params.php')
+);
 $config = [
     'components' => [
         'assetManager' => [
@@ -10,7 +14,8 @@ $config = [
     'as locale' => [
         'class' => 'common\behaviors\LocaleBehavior',
         'enablePreferredLanguage' => true
-    ]
+    ],
+    'params' => $params,
 ];
 
 if (YII_DEBUG) {

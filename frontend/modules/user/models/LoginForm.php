@@ -17,6 +17,14 @@ class LoginForm extends Model
 
     private $user = false;
 
+    public function afterValidate()
+    {
+        parent::afterValidate();
+        if ($this->hasErrors()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+        }
+    }
     /**
      * @inheritdoc
      */
@@ -35,7 +43,7 @@ class LoginForm extends Model
     public function attributeLabels()
     {
         return [
-            'identity'=>Yii::t('frontend', 'Username or email'),
+            'identity'=>Yii::t('frontend', 'Username or mobile'),
             'password'=>Yii::t('frontend', 'Password'),
             'rememberMe'=>Yii::t('frontend', 'Remember Me'),
         ];
@@ -64,9 +72,13 @@ class LoginForm extends Model
     public function login()
     {
         if ($this->validate()) {
-            if (Yii::$app->user->login($this->getUser(), $this->rememberMe ? Time::SECONDS_IN_A_MONTH : 0)) {
+            /*if (Yii::$app->user->login($this->getUser(), $this->rememberMe ? Time::SECONDS_IN_A_MONTH : 0)) {
                 return true;
-            }
+            }*/
+            return $this->getUser();
+        }else{
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(401);
         }
         return false;
     }
@@ -81,7 +93,7 @@ class LoginForm extends Model
         if ($this->user === false) {
             $this->user = User::find()
                 ->active()
-                ->andWhere(['or', ['username'=>$this->identity], ['email'=>$this->identity]])
+                ->andWhere(['or', ['username'=>$this->identity], ['mobile'=>$this->identity]])
                 ->one();
         }
 

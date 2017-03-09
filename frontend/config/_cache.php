@@ -8,10 +8,10 @@ $cache = [
     'cachePath' => '@frontend/runtime/cache'
 ];
 
-if (YII_ENV_DEV) {
+/*if (YII_ENV_DEV) {
     $cache = [
         'class' => 'yii\caching\DummyCache'
     ];
-}
+}*/
 
 return $cache;

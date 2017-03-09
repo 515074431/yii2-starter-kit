@@ -11,7 +11,7 @@ use yii\web\JsExpression;
 class AccountForm extends Model
 {
     public $username;
-    public $email;
+    public $mobile;
     public $password;
     public $password_confirm;
 
@@ -20,7 +20,7 @@ class AccountForm extends Model
     public function setUser($user)
     {
         $this->user = $user;
-        $this->email = $user->email;
+        $this->mobile = $user->mobile;
         $this->username = $user->username;
     }
 
@@ -40,12 +40,12 @@ class AccountForm extends Model
                 }
             ],
             ['username', 'string', 'min' => 1, 'max' => 255],
-            ['email', 'filter', 'filter' => 'trim'],
-            ['email', 'required'],
-            ['email', 'email'],
-            ['email', 'unique',
+            ['mobile', 'filter', 'filter' => 'trim'],
+            ['mobile', 'required'],
+            ['mobile', 'validateMobile'],// 验证手机号
+            ['mobile', 'unique',
                 'targetClass' => '\common\models\User',
-                'message' => Yii::t('frontend', 'This email has already been taken.'),
+                'message' => Yii::t('frontend', 'This mobile has already been taken.'),
                 'filter' => function ($query) {
                     $query->andWhere(['not', ['id' => Yii::$app->user->getId()]]);
                 }
@@ -70,7 +70,7 @@ class AccountForm extends Model
     {
         return [
             'username' => Yii::t('frontend', 'Username'),
-            'email' => Yii::t('frontend', 'Email'),
+            'mobile' => Yii::t('frontend', 'Mobile'),
             'password' => Yii::t('frontend', 'Password'),
             'password_confirm' => Yii::t('frontend', 'Confirm Password')
         ];
@@ -79,10 +79,27 @@ class AccountForm extends Model
     public function save()
     {
         $this->user->username = $this->username;
-        $this->user->email = $this->email;
+        $this->user->mobile = $this->mobile;
         if ($this->password) {
             $this->user->setPassword($this->password);
         }
         return $this->user->save();
+    }
+    /**
+     * Validates the Mobile.
+     * This method serves as the inline validation for Mobile.
+     */
+    public function validateMobile()
+    {
+        if(preg_match("/^1[34578]\d{9}$/", $this->mobile)){
+            $user = User::findByMobile($this->mobile);
+            if($user){
+                return true;
+            }else{
+                $this->addError('mobile','手机未注册');
+            }
+        }else{
+            $this->addError('mobile','手机格式不正确');
+        }
     }
 }

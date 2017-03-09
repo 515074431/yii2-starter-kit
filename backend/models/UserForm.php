@@ -13,7 +13,7 @@ use yii\helpers\ArrayHelper;
 class UserForm extends Model
 {
     public $username;
-    public $email;
+    public $mobile;
     public $password;
     public $status;
     public $roles;
@@ -35,10 +35,10 @@ class UserForm extends Model
             }],
             ['username', 'string', 'min' => 2, 'max' => 255],
 
-            ['email', 'filter', 'filter' => 'trim'],
-            ['email', 'required'],
-            ['email', 'email'],
-            ['email', 'unique', 'targetClass'=> User::className(), 'filter' => function ($query) {
+            ['mobile', 'filter', 'filter' => 'trim'],
+            ['mobile', 'required'],
+            ['mobile', 'validateMobile'],
+            ['mobile', 'unique', 'targetClass'=> User::className(), 'filter' => function ($query) {
                 if (!$this->getModel()->isNewRecord) {
                     $query->andWhere(['not', ['id'=>$this->getModel()->id]]);
                 }
@@ -64,7 +64,7 @@ class UserForm extends Model
     {
         return [
             'username' => Yii::t('common', 'Username'),
-            'email' => Yii::t('common', 'Email'),
+            'mobile' => Yii::t('common', 'Mobile'),
             'status' => Yii::t('common', 'Status'),
             'password' => Yii::t('common', 'Password'),
             'roles' => Yii::t('common', 'Roles')
@@ -78,7 +78,7 @@ class UserForm extends Model
     public function setModel($model)
     {
         $this->username = $model->username;
-        $this->email = $model->email;
+        $this->mobile = $model->mobile;
         $this->status = $model->status;
         $this->model = $model;
         $this->roles = ArrayHelper::getColumn(
@@ -110,7 +110,7 @@ class UserForm extends Model
             $model = $this->getModel();
             $isNewRecord = $model->getIsNewRecord();
             $model->username = $this->username;
-            $model->email = $this->email;
+            $model->mobile = $this->mobile;
             $model->status = $this->status;
             if ($this->password) {
                 $model->setPassword($this->password);
@@ -133,5 +133,22 @@ class UserForm extends Model
             return !$model->hasErrors();
         }
         return null;
+    }
+    /**
+     * Validates the Mobile.
+     * This method serves as the inline validation for Mobile.
+     */
+    public function validateMobile()
+    {
+        if(preg_match("/^1[34578]\d{9}$/", $this->mobile)){
+            $user = User::findByMobile($this->mobile);
+            if(!$user){
+                return true;
+            }else{
+                $this->addError('mobile','手机已注册');
+            }
+        }else{
+            $this->addError('mobile','手机格式不正确');
+        }
     }
 }
