@@ -11,9 +11,9 @@ use yii\db\ActiveRecord;
  *
  * @property integer $user_id
  * @property integer $locale
- * @property string $firstname
- * @property string $middlename
- * @property string $lastname
+ * @property string $province
+ * @property string $city
+ * @property string $area
  * @property string $picture
  * @property string $avatar
  * @property string $avatar_path
@@ -65,7 +65,7 @@ class UserProfile extends ActiveRecord
             [['user_id'], 'required'],
             [['user_id', 'gender'], 'integer'],
             [['gender'], 'in', 'range' => [NULL, self::GENDER_FEMALE, self::GENDER_MALE]],
-            [['firstname', 'middlename', 'lastname', 'avatar_path', 'avatar_base_url'], 'string', 'max' => 255],
+            [['province', 'city', 'area', 'avatar_path', 'avatar_base_url'], 'string', 'max' => 255],
             ['locale', 'default', 'value' => Yii::$app->language],
             ['locale', 'in', 'range' => array_keys(Yii::$app->params['availableLocales'])],
             ['picture', 'safe']
@@ -79,9 +79,9 @@ class UserProfile extends ActiveRecord
     {
         return [
             'user_id' => Yii::t('common', 'User ID'),
-            'firstname' => Yii::t('common', 'Firstname'),
-            'middlename' => Yii::t('common', 'Middlename'),
-            'lastname' => Yii::t('common', 'Lastname'),
+            'province' => '省',
+            'city' => '市',
+            'area' => '区',
             'locale' => Yii::t('common', 'Locale'),
             'picture' => Yii::t('common', 'Picture'),
             'gender' => Yii::t('common', 'Gender'),
@@ -101,8 +101,8 @@ class UserProfile extends ActiveRecord
      */
     public function getFullName()
     {
-        if ($this->firstname || $this->lastname) {
-            return implode(' ', [$this->firstname, $this->lastname]);
+        if ($this->province || $this->area) {
+            return implode(' ', [$this->province, $this->area]);
         }
         return null;
     }

@@ -10,6 +10,11 @@ use yii\filters\auth\HttpBearerAuth;
 use yii\filters\auth\QueryParamAuth;
 use yii\rest\ActiveController;
 use yii\web\NotFoundHttpException;
+use yii;
+
+use Intervention\Image\ImageManagerStatic;
+use trntv\filekit\actions\DeleteAction;
+use trntv\filekit\actions\UploadAction;
 
 /**
  * @author Eugene Terentev <eugene@terentev.net>
@@ -47,7 +52,20 @@ class ProfileController extends ActiveController
 
         return $behaviors;
     }
-
+    /**
+     * @inheritdoc
+     */
+    /*protected function verbs()
+    {
+        return [
+            'index' => ['GET', 'HEAD'],
+            'view' => ['GET', 'HEAD'],
+            'create' => ['POST'],
+            'avatar-upload' => ['POST'],
+            'update' => ['PUT', 'PATCH'],
+            'delete' => ['DELETE'],
+        ];
+    }*/
     /**
      * @inheritdoc
      */
@@ -66,8 +84,37 @@ class ProfileController extends ActiveController
             'options' => [
                 'class' => 'yii\rest\OptionsAction'
             ]*/
+            'avatar-upload' => [
+                'class' => UploadAction::className(),
+                'deleteRoute' => 'avatar-delete',
+                'on afterSave' => function ($event) {
+                    /* @var $file \League\Flysystem\File */
+                    $file = $event->file;//var_dump($event);exit;
+                    $img = ImageManagerStatic::make($file->read())->fit(215, 215);
+                    $file->put($img->encode());
+                    //
+
+                    $model = Yii::$app->user->identity->userProfile;
+
+                    $model->avatar_path = $event->path;
+                    $model->avatar_base_url = Yii::getAlias('@storageUrl').'/source/';//这里写死了，不太好
+                    if ($model->save(false)) {
+                        return $model;
+                    }else{
+                        return $model->errors;
+                    }
+                }
+            ],
+            'avatar-delete' => [
+                'class' => DeleteAction::className()
+            ]
         ];
     }
+
+    /**
+     * 用户中心，用户资料
+     * @return array
+     */
     public function actionIndex(){
 
         if(!\Yii::$app->user->isGuest){
@@ -87,6 +134,20 @@ class ProfileController extends ActiveController
 
     }
 
+    /**
+     *
+     * @return string|\yii\web\Response
+     */
+    public function actionUpdate()
+    {
+        $model = Yii::$app->user->identity->userProfile;
+
+        if ($model->load(Yii::$app->getRequest()->getBodyParams(),'') && $model->save()) {
+            return $model;
+        }else{
+            return $model->errors;
+        }
+    }
     /**
      * @param $id
      * @return null|static
