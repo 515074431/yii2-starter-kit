@@ -321,4 +321,21 @@ class SignInController extends ActiveController
             throw new Exception('OAuth error');
         }
     }
+
+    /**
+     * 用户信息
+     * @return string|Response
+     */
+    public function actionProfile()
+    {
+        $model = Yii::$app->user->identity->userProfile;
+        if ($model->load($_POST) && $model->save()) {
+            Yii::$app->session->setFlash('alert', [
+                'options'=>['class'=>'alert-success'],
+                'body'=>Yii::t('backend', 'Your profile has been successfully saved', [], $model->locale)
+            ]);
+            return $this->refresh();
+        }
+        return $this->render('profile', ['model'=>$model]);
+    }
 }

@@ -35,7 +35,10 @@ class SignupForm extends Model
      * @var 手机验证码
      */
     public $code;
-
+    /**
+     * @var邀请码
+     */
+    public $invitation_code;
     public function afterValidate()
     {
         parent::afterValidate();
@@ -71,6 +74,7 @@ class SignupForm extends Model
 
             ['code', 'required'],
             ['code', 'checkCode'],
+            ['invitation_code','string','max'=>11],
         ];
     }
 
@@ -83,6 +87,7 @@ class SignupForm extends Model
             'username'=>Yii::t('frontend', 'Username'),
             'mobile'=>Yii::t('frontend', 'Mobile'),
             'password'=>Yii::t('frontend', 'Password'),
+            'invitation_code'=>'邀请码',
         ];
     }
 
@@ -98,6 +103,7 @@ class SignupForm extends Model
             $user = new User();
             $user->username = $this->username;
             $user->mobile = $this->mobile;
+            $user->invitation_code = $this->invitation_code;
             $user->status = $shouldBeActivated ? User::STATUS_NOT_ACTIVE : User::STATUS_ACTIVE;
             $user->setPassword($this->password);
             if(!$user->save()) {
