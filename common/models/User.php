@@ -78,9 +78,9 @@ class User extends ActiveRecord implements IdentityInterface
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => 'access_token'
                 ],
-                'value' => function () {
+                'value' => $this->generateAccessToken()/*function () {
                     return Yii::$app->getSecurity()->generateRandomString(40);
-                }
+                }*/
             ]
         ];
     }
@@ -124,6 +124,7 @@ class User extends ActiveRecord implements IdentityInterface
             'mobile' => Yii::t('common', 'Mobile'),
             'status' => Yii::t('common', 'Status'),
             'access_token' => Yii::t('common', 'API access token'),
+            'invitation_code' => 'invitation_code',
             'created_at' => Yii::t('common', 'Created at'),
             'updated_at' => Yii::t('common', 'Updated at'),
             'logged_at' => Yii::t('common', 'Last login'),
@@ -148,12 +149,35 @@ class User extends ActiveRecord implements IdentityInterface
             ->andWhere(['id' => $id])
             ->one();
     }
+    /**
+     * 生成 api_token
+     */
+    public function generateAccessToken()
+    {
+        return $this->access_token = Yii::$app->security->generateRandomString(29) . '_' . time();
+    }
+    /**
+     * 校验api_token是否有效
+     */
+    public static function accessTokenIsValid($token)
+    {
+        if (empty($token)) {
+            return false;
+        }
 
+        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $expire = Yii::$app->params['user.TokenExpire'];
+        return $timestamp + $expire >= time();
+    }
     /**
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
+        // 如果token无效的话，
+        if(!static::accessTokenIsValid($token)) {
+            throw new \yii\web\UnauthorizedHttpException("token is invalid.");
+        }
         return static::find()
             ->active()
             ->andWhere(['access_token' => $token])
@@ -245,6 +269,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function setPassword($password)
     {
         $this->password_hash = Yii::$app->getSecurity()->generatePasswordHash($password);
+        $this->generateAccessToken();
     }
 
     /**

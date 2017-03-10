@@ -75,7 +75,10 @@ class LoginForm extends Model
             /*if (Yii::$app->user->login($this->getUser(), $this->rememberMe ? Time::SECONDS_IN_A_MONTH : 0)) {
                 return true;
             }*/
-            return $this->getUser();
+            $user = $this->getUser();
+            $user->generateAccessToken();
+            $user->save(false);
+            return $user;
         }else{
             $response = Yii::$app->getResponse();
             $response->setStatusCode(401);
