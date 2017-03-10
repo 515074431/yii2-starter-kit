@@ -60,7 +60,7 @@ class ArticleController extends ActiveController
         if(isset($params['per-page'])) unset($params['per-page']);
         //var_dump($params);exit;
         return new ActiveDataProvider(array(
-            'query' => Article::find()->where($params)->published()//
+            'query' => Article::find()->where($params)->published()->orderBy(['published_at'=>SORT_DESC])//
         ));
     }
 
