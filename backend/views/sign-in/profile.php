@@ -19,11 +19,11 @@ $this->title = Yii::t('backend', 'Edit profile')
         'url'=>['avatar-upload']
     ]) ?>
 
-    <?php echo $form->field($model, 'firstname')->textInput(['maxlength' => 255]) ?>
+    <?php echo $form->field($model, 'province')->textInput(['maxlength' => 255]) ?>
 
-    <?php echo $form->field($model, 'middlename')->textInput(['maxlength' => 255]) ?>
+    <?php echo $form->field($model, 'city')->textInput(['maxlength' => 255]) ?>
 
-    <?php echo $form->field($model, 'lastname')->textInput(['maxlength' => 255]) ?>
+    <?php echo $form->field($model, 'area')->textInput(['maxlength' => 255]) ?>
 
     <?php echo $form->field($model, 'locale')->dropDownlist(Yii::$app->params['availableLocales']) ?>
 
