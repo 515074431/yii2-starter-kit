@@ -18,7 +18,13 @@ class ArticleController extends ActiveController
      * @var string
      */
     public $modelClass = 'frontend\modules\api\v1\resources\Article';
-
+    /**
+     * @var array
+     */
+    public $serializer = [
+        'class' => 'yii\rest\Serializer',
+        'collectionEnvelope' => 'items'
+    ];
 
     /**
      * @inheritdoc
@@ -54,7 +60,7 @@ class ArticleController extends ActiveController
         if(isset($params['per-page'])) unset($params['per-page']);
         //var_dump($params);exit;
         return new ActiveDataProvider(array(
-            'query' => Article::find()->where($params)->published()
+            'query' => Article::find()->where($params)->published()//
         ));
     }
 
