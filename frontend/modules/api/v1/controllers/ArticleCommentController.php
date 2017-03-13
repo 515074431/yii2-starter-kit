@@ -4,6 +4,7 @@ namespace frontend\modules\api\v1\controllers;
 use Yii;
 use frontend\modules\api\v1\resources\ArticleComment;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\rest\ActiveController;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
@@ -30,7 +31,7 @@ class ArticleCommentController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['authenticator'] = [
+        /*$behaviors['authenticator'] = [
             'class' => CompositeAuth::className(),
             'authMethods' => [
                 [
@@ -43,9 +44,10 @@ class ArticleCommentController extends ActiveController
                     }
                 ],
                 HttpBearerAuth::className(),
-                QueryParamAuth::className()
+                QueryParamAuth::className(),
             ]
-        ];
+        ];*/
+
 
         return $behaviors;
     }
@@ -83,7 +85,18 @@ class ArticleCommentController extends ActiveController
         $model = new $this->modelClass();
 
         $params = Yii::$app->getRequest()->getBodyParams();
-        $params['user_id'] = Yii::$app->getUser()->id;
+        $access_token = Yii::$app->getRequest()->get('access-token');
+        if($access_token){
+            $user = User::find()
+                ->active()
+                ->andWhere(['access_token' => $access_token])
+                ->one();
+            if($user){
+                $params['user_id'] = $user->getId();
+            }
+
+        }
+
         $model->load($params, '');
         if ($model->save()) {
             return $model;
@@ -100,7 +113,7 @@ class ArticleCommentController extends ActiveController
     public function prepareDataProvider()
     {
         return new ActiveDataProvider(array(
-            'query' => ArticleComment::find()
+            'query' => ArticleComment::find()->where(['article_id'=>Yii::$app->getRequest()->get('article_id')])
         ));
     }
 
