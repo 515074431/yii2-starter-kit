@@ -59,4 +59,19 @@ class ArticleComment extends \yii\db\ActiveRecord
             'updated_at' => '更新时间',
         ];
     }
+    /**
+     * 获取用户
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUser(){
+        return $this->hasOne(User::className(),['id'=>'user_id']);
+    }
+
+    /**
+     * 获取用户资料
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserProfile(){
+        return $this->hasOne(UserProfile::className(),['user_id'=>'user_id']);
+    }
 }

@@ -34,21 +34,7 @@ class ArticleComment extends \common\models\ArticleComment implements Linkable
         ];
     }
 
-    /**
-     * 获取用户
-     * @return \yii\db\ActiveQuery
-     */
-    public function getUser(){
-        return $this->hasOne(User::className(),['id'=>'user_id']);
-    }
 
-    /**
-     * 获取用户资料
-     * @return \yii\db\ActiveQuery
-     */
-    public function getUserProfile(){
-        return $this->hasOne(UserProfile::className(),['user_id'=>'user_id']);
-    }
     /**
      * Returns a list of links.
      *
