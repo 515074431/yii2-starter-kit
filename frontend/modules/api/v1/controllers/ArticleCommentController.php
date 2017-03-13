@@ -3,9 +3,11 @@ namespace frontend\modules\api\v1\controllers;
 
 use Yii;
 use frontend\modules\api\v1\resources\ArticleComment;
+use common\models\ArticleComment as ArticleCommentBase;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\rest\ActiveController;
+use yii\rest\Serializer;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 
@@ -57,17 +59,6 @@ class ArticleCommentController extends ActiveController
     public function actions()
     {
         return [
-            'index' => [
-                'class' => 'yii\rest\IndexAction',
-                'modelClass' => $this->modelClass,
-                'prepareDataProvider' => [$this, 'prepareDataProvider']
-            ],
-            /*'create' => [
-                'class' => 'yii\rest\CreateAction',
-                'modelClass' => $this->modelClass,
-                'checkAccess' => [$this, 'checkAccess'],
-                'scenario' => $this->createScenario,
-            ],*/
             'view' => [
                 'class' => 'yii\rest\ViewAction',
                 'modelClass' => $this->modelClass,
@@ -78,7 +69,23 @@ class ArticleCommentController extends ActiveController
             ]
         ];
     }
+    public function actionIndex(){
 
+        $articleComents = ArticleCommentBase::find()->where(['article_id'=>Yii::$app->getRequest()->get('article_id')])->all();
+        $return = [];
+        foreach ($articleComents as $articleComent) {
+            $tmp =$articleComent->toArray();
+            if($articleComent->userProfile != null){
+                $tmp['username'] = $articleComent->user->username;
+                $tmp['avatar'] = $articleComent->userProfile->avatar_base_url. $articleComent->userProfile->avatar_path;
+            }else{
+                $tmp['username'] = null;
+                $tmp['avatar'] = null;
+            }
+            $return [] = $tmp;
+        }
+        return $return;
+    }
 
     public function actionCreate(){
         /* @var $model \yii\db\ActiveRecord */
