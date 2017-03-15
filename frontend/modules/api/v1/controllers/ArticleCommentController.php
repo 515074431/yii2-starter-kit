@@ -71,7 +71,7 @@ class ArticleCommentController extends ActiveController
     }
     public function actionIndex(){
 
-        $articleComents = ArticleCommentBase::find()->where(['article_id'=>Yii::$app->getRequest()->get('article_id')])->all();
+        $articleComents = ArticleCommentBase::find()->where(['article_id'=>Yii::$app->getRequest()->get('article_id')])->orderBy(['created_at'=>SORT_DESC])->all();
         $return = [];
         foreach ($articleComents as $articleComent) {
             $tmp =$articleComent->toArray();

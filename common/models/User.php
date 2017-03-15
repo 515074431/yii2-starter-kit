@@ -16,6 +16,7 @@ use yii\web\IdentityInterface;
  * @property integer $id
  * @property string $username
  * @property string $password_hash
+ * @property string $pay_pass
  * @property string $mobile
  * @property string $auth_key
  * @property string $access_token
@@ -23,6 +24,8 @@ use yii\web\IdentityInterface;
  * @property string $oauth_client_user_id
  * @property string $publicIdentity
  * @property integer $status
+ * @property integer $balance
+ * @property integer $solid_balance
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $logged_at
@@ -270,6 +273,16 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->password_hash = Yii::$app->getSecurity()->generatePasswordHash($password);
         $this->generateAccessToken();
+    }
+
+    /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     */
+    public function setPayPass($password)
+    {
+        $this->pay_pass = Yii::$app->getSecurity()->generatePasswordHash($password);
     }
 
     /**

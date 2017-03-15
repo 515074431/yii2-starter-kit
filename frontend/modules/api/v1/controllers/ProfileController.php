@@ -3,6 +3,7 @@
 namespace frontend\modules\api\v1\controllers;
 
 use common\models\User;
+use frontend\modules\api\v1\models\ResetPayPassForm;
 use frontend\modules\api\v1\resources\User as UserResource;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBasicAuth;
@@ -25,7 +26,13 @@ class ProfileController extends ActiveController
      * @var string
      */
     public $modelClass = 'frontend\modules\api\v1\resources\User';
-
+    /**
+     * @var array
+     */
+    /*public $serializer = [
+        'class' => 'yii\rest\Serializer',
+        'collectionEnvelope' => 'items'
+    ];*/
     /**
      * @return array
      */
@@ -125,8 +132,10 @@ class ProfileController extends ActiveController
                 'username' => $user->username,
                 'mobile' => $user->mobile,
                 'invitation_code' => $user->id,
+                'balance' => $user->balance,
+                'solid_balance' => $user->solid_balance,
                 'avatar' => $userProfile->avatar,
-                'profile' => $userProfile
+                'profile' => $userProfile,
             ];
         }else{
 
@@ -135,7 +144,7 @@ class ProfileController extends ActiveController
     }
 
     /**
-     *
+     * 修改用户资料
      * @return string|\yii\web\Response
      */
     public function actionUpdate()
@@ -147,6 +156,20 @@ class ProfileController extends ActiveController
         }else{
             return $model->errors;
         }
+    }
+
+    /**
+     * 修改支付密码
+     * @return array
+     */
+    public function actionPayPass(){
+        $model = new ResetPayPassForm();
+        if($model->load(Yii::$app->getRequest()->getBodyParams(),'') && $model->resetPayPass()){
+            return ['修改支付密码成功'];
+        }else{
+            return $model->errors;
+        }
+
     }
     /**
      * @param $id
