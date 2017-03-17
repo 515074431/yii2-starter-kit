@@ -1,19 +1,17 @@
 <?php
-namespace backend\models;
+namespace frontend\modules\user\models;
 
 use cheatsheet\Time;
 use common\models\User;
 use Yii;
-use yii\base\Exception;
 use yii\base\Model;
-use yii\web\ForbiddenHttpException;
 
 /**
  * Login form
  */
 class LoginForm extends Model
 {
-    public $username;
+    public $identity;
     public $password;
     public $rememberMe = true;
 
@@ -26,7 +24,7 @@ class LoginForm extends Model
     {
         return [
             // username and password are both required
-            [['username', 'password'], 'required'],
+            [['identity', 'password'], 'required'],
             // rememberMe must be a boolean value
             ['rememberMe', 'boolean'],
             // password is validated by validatePassword()
@@ -34,17 +32,15 @@ class LoginForm extends Model
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
     public function attributeLabels()
     {
         return [
-            'username' => Yii::t('backend', 'Username'),
-            'password' => Yii::t('backend', 'Password'),
-            'rememberMe' => Yii::t('backend', 'Remember Me')
+            'identity'=>Yii::t('frontend', 'Username or email'),
+            'password'=>Yii::t('frontend', 'Password'),
+            'rememberMe'=>Yii::t('frontend', 'Remember Me'),
         ];
     }
+
 
     /**
      * Validates the password.
@@ -55,30 +51,23 @@ class LoginForm extends Model
         if (!$this->hasErrors()) {
             $user = $this->getUser();
             if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError('password', Yii::t('backend', 'Incorrect username or password.'));
+                $this->addError('password', Yii::t('frontend', 'Incorrect username or password.'));
             }
         }
     }
 
     /**
      * Logs in a user using the provided username and password.
-     * @return bool whether the user is logged in successfully
-     * @throws ForbiddenHttpException
+     *
+     * @return boolean whether the user is logged in successfully
      */
     public function login()
     {
-        if (!$this->validate()) {
-            return false;
-        }
-        $duration = $this->rememberMe ? Time::SECONDS_IN_A_MONTH : 0;
-        if (Yii::$app->user->login($this->getUser(), $duration)) {
-            if (!Yii::$app->user->can('loginToBackend')) {
-                Yii::$app->user->logout();
-                throw new ForbiddenHttpException;
+        if ($this->validate()) {
+            if (Yii::$app->user->login($this->getUser(), $this->rememberMe ? Time::SECONDS_IN_A_MONTH : 0)) {
+                return true;
             }
-            return true;
         }
-
         return false;
     }
 
@@ -91,7 +80,8 @@ class LoginForm extends Model
     {
         if ($this->user === false) {
             $this->user = User::find()
-                ->andWhere(['or', ['username'=>$this->username], ['mobile'=>$this->username], ['email'=>$this->username]])
+                ->active()
+                ->andWhere(['or', ['username'=>$this->identity], ['email'=>$this->identity]])
                 ->one();
         }
 

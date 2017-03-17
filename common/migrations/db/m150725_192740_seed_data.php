@@ -10,6 +10,7 @@ class m150725_192740_seed_data extends Migration
         $this->insert('{{%user}}', [
             'id' => 1,
             'username' => 'webmaster',
+            'email' => 'webmaster@example.com',
             'mobile' => '15012345678',
             'password_hash' => Yii::$app->getSecurity()->generatePasswordHash('webmaster'),
             'auth_key' => Yii::$app->getSecurity()->generateRandomString(),
@@ -21,6 +22,7 @@ class m150725_192740_seed_data extends Migration
         $this->insert('{{%user}}', [
             'id' => 2,
             'username' => 'manager',
+            'email' => 'manager@example.com',
             'mobile' => '15112345678',
             'password_hash' => Yii::$app->getSecurity()->generatePasswordHash('manager'),
             'auth_key' => Yii::$app->getSecurity()->generateRandomString(),
@@ -32,6 +34,7 @@ class m150725_192740_seed_data extends Migration
         $this->insert('{{%user}}', [
             'id' => 3,
             'username' => 'user',
+            'email' => 'user@example.com',
             'mobile' => '15212345678',
             'password_hash' => Yii::$app->getSecurity()->generatePasswordHash('user'),
             'auth_key' => Yii::$app->getSecurity()->generateRandomString(),

@@ -21,6 +21,8 @@ use yii\bootstrap\ActiveForm;
 
     <?php echo $form->field($model, 'auth_key') ?>
 
+    <?php echo $form->field($model, 'email') ?>
+
     <?php echo $form->field($model, 'mobile') ?>
 
     <?php echo $form->field($model, 'role') ?>

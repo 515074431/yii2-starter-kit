@@ -18,6 +18,7 @@ use yii\web\IdentityInterface;
  * @property string $password_hash
  * @property string $pay_pass
  * @property string $mobile
+ * @property string $email
  * @property string $auth_key
  * @property string $access_token
  * @property string $oauth_client
@@ -110,7 +111,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'mobile'], 'unique'],
+            [['username', 'mobile', 'email'], 'unique'],
             ['status', 'default', 'value' => self::STATUS_NOT_ACTIVE],
             ['status', 'in', 'range' => array_keys(self::statuses())],
             [['username'], 'filter', 'filter' => '\yii\helpers\Html::encode']
@@ -124,6 +125,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             'username' => Yii::t('common', 'Username'),
+            'email' => Yii::t('common', 'E-mail'),
             'mobile' => Yii::t('common', 'Mobile'),
             'status' => Yii::t('common', 'Status'),
             'access_token' => Yii::t('common', 'API access token'),
@@ -216,7 +218,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Finds user by username or mobile
+     * Finds user by username or mobile or email
      *
      * @param string $login
      * @return static|null
@@ -225,7 +227,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return static::find()
             ->active()
-            ->andWhere(['or', ['username' => $login], ['mobile' => $login]])
+            ->andWhere(['or', ['username' => $login], ['mobile' => $login], ['email' => $login]])
             ->one();
     }
 
@@ -334,6 +336,9 @@ class User extends ActiveRecord implements IdentityInterface
         }
         if ($this->username) {
             return $this->username;
+        }
+        if ($this->email) {
+            return $this->email;
         }
         return $this->mobile;
     }
