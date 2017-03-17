@@ -60,6 +60,7 @@ class Article extends CommonArticle
             $news = new self();
             $i++;
         }
+        $news->created_by = 1;//所有抓取内容皆为管理者抓取
         $news->category_id = $categoryId;
         $news->status =  self::STATUS_PUBLISHED;
         $news->id_third = $n['id'];
