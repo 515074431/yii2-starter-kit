@@ -1,7 +1,7 @@
 <?php
 namespace backend\models;
 
-use common\models\User;
+use common\models\AdminUser;
 use yii\base\Exception;
 use yii\base\Model;
 use Yii;
@@ -10,7 +10,7 @@ use yii\helpers\ArrayHelper;
 /**
  * Create user form
  */
-class UserForm extends Model
+class AdminUserForm extends Model
 {
     public $username;
     public $email;
@@ -29,7 +29,7 @@ class UserForm extends Model
         return [
             ['username', 'filter', 'filter' => 'trim'],
             ['username', 'required'],
-            ['username', 'unique', 'targetClass' => User::className(), 'filter' => function ($query) {
+            ['username', 'unique', 'targetClass' => AdminUser::className(), 'filter' => function ($query) {
                 if (!$this->getModel()->isNewRecord) {
                     $query->andWhere(['not', ['id'=>$this->getModel()->id]]);
                 }
@@ -39,7 +39,7 @@ class UserForm extends Model
 	    ['email', 'filter', 'filter' => 'trim'],
             ['email', 'required'],
             ['email', 'email'],
-            ['email', 'unique', 'targetClass'=> User::className(), 'filter' => function ($query) {
+            ['email', 'unique', 'targetClass'=> AdminUser::className(), 'filter' => function ($query) {
                 if (!$this->getModel()->isNewRecord) {
                     $query->andWhere(['not', ['id'=>$this->getModel()->id]]);
                 }
@@ -47,7 +47,7 @@ class UserForm extends Model
             ['mobile', 'filter', 'filter' => 'trim'],
             ['mobile', 'required'],
             ['mobile', 'validateMobile'],
-            ['mobile', 'unique', 'targetClass'=> User::className(), 'filter' => function ($query) {
+            ['mobile', 'unique', 'targetClass'=> AdminUser::className(), 'filter' => function ($query) {
                 if (!$this->getModel()->isNewRecord) {
                     $query->andWhere(['not', ['id'=>$this->getModel()->id]]);
                 }
@@ -82,7 +82,7 @@ class UserForm extends Model
     }
 
     /**
-     * @param User $model
+     * @param AdminUser $model
      * @return mixed
      */
     public function setModel($model)
@@ -100,19 +100,19 @@ class UserForm extends Model
     }
 
     /**
-     * @return User
+     * @return AdminUser
      */
     public function getModel()
     {
         if (!$this->model) {
-            $this->model = new User();
+            $this->model = new AdminUser();
         }
         return $this->model;
     }
 
     /**
      * Signs user up.
-     * @return User|null the saved model or null if saving fails
+     * @return AdminUser|null the saved model or null if saving fails
      * @throws Exception
      */
     public function save()
@@ -133,15 +133,14 @@ class UserForm extends Model
             if ($isNewRecord) {
                 $model->afterSignup();
             }
-            /*注册前台用户先不设置角色*/
-            /*$auth = Yii::$app->authManager;
+            $auth = Yii::$app->authManager;
             $auth->revokeAll($model->getId());
 
             if ($this->roles && is_array($this->roles)) {
                 foreach ($this->roles as $role) {
                     $auth->assign($auth->getRole($role), $model->getId());
                 }
-            }*/
+            }
 
             return !$model->hasErrors();
         }
@@ -154,7 +153,7 @@ class UserForm extends Model
     public function validateMobile()
     {
         if(preg_match("/^1[34578]\d{9}$/", $this->mobile)){
-            $user = User::findByMobile($this->mobile);
+            $user = AdminUser::findByMobile($this->mobile);
             if(!$user){
                 return true;
             }else{

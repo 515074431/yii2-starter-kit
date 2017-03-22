@@ -150,6 +150,7 @@ return [
     'User Registrations' => '用户注册数',
     'Username' => '用户名',
     'Users' => '用户',
+    'Admin Users' => '管理员用户',
     'View all' => '查看全部',
     'View user' => '查看用户',
     'Web Server' => 'Web 服务',
@@ -164,4 +165,6 @@ return [
     'i18n' => '国际化',
     'i18n Message' => '国际化信息',
     'i18n Source Message' => '国际化源信息',
+    'backend' => '后台',
+    'frontend' => '前台',
 ];

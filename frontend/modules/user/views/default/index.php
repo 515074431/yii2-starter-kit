@@ -24,11 +24,11 @@ $this->title = Yii::t('frontend', 'User Settings')
         ]
     )?>
 
-    <?php echo $form->field($model->getModel('profile'), 'firstname')->textInput(['maxlength' => 255]) ?>
+    <?php echo $form->field($model->getModel('profile'), 'province')->textInput(['maxlength' => 255]) ?>
 
-    <?php echo $form->field($model->getModel('profile'), 'middlename')->textInput(['maxlength' => 255]) ?>
+    <?php echo $form->field($model->getModel('profile'), 'city')->textInput(['maxlength' => 255]) ?>
 
-    <?php echo $form->field($model->getModel('profile'), 'lastname')->textInput(['maxlength' => 255]) ?>
+    <?php echo $form->field($model->getModel('profile'), 'area')->textInput(['maxlength' => 255]) ?>
 
     <?php echo $form->field($model->getModel('profile'), 'locale')->dropDownlist(Yii::$app->params['availableLocales']) ?>
 

@@ -34,7 +34,7 @@ use yii\web\IdentityInterface;
  *
  * @property \common\models\UserProfile $userProfile
  */
-class User extends ActiveRecord implements IdentityInterface
+class AdminUser extends ActiveRecord implements IdentityInterface
 {
     const STATUS_NOT_ACTIVE = 1;
     const STATUS_ACTIVE = 2;
@@ -52,7 +52,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function tableName()
     {
-        return '{{%user}}';
+        return '{{%admin_user}}';
     }
 
     /**
@@ -141,7 +141,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getUserProfile()
     {
-        return $this->hasOne(UserProfile::className(), ['user_id' => 'id']);
+        return $this->hasOne(AdminUserProfile::className(), ['user_id' => 'id']);
     }
 
     /**
@@ -308,7 +308,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->refresh();
         Yii::$app->commandBus->handle(new AddToTimelineCommand([
-            'category' => 'user',
+            'category' => 'admin-user',
             'event' => 'signup',
             'data' => [
                 'public_identity' => $this->getPublicIdentity(),
@@ -316,14 +316,14 @@ class User extends ActiveRecord implements IdentityInterface
                 'created_at' => $this->created_at
             ]
         ]));
-        $profile = new UserProfile();
+        $profile = new AdminUserProfile();
         $profile->locale = Yii::$app->language;
         $profile->load($profileData, '');
         $this->link('userProfile', $profile);
         $this->trigger(self::EVENT_AFTER_SIGNUP);
         // Default role
-        //$auth = Yii::$app->authManager;
-        //$auth->assign($auth->getRole(User::ROLE_USER), $this->getId());
+        $auth = Yii::$app->authManager;
+        $auth->assign($auth->getRole(User::ROLE_USER), $this->getId());
     }
 
     /**

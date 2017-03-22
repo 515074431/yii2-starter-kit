@@ -7,7 +7,7 @@ class m150725_192740_seed_data extends Migration
 {
     public function safeUp()
     {
-        $this->insert('{{%user}}', [
+        /*$this->insert('{{%user}}', [
             'id' => 1,
             'username' => 'webmaster',
             'email' => 'webmaster@example.com',
@@ -30,9 +30,9 @@ class m150725_192740_seed_data extends Migration
             'status'=> User::STATUS_ACTIVE,
             'created_at' => time(),
             'updated_at' => time()
-        ]);
+        ]);*/
         $this->insert('{{%user}}', [
-            'id' => 3,
+            'id' => 1,
             'username' => 'user',
             'email' => 'user@example.com',
             'mobile' => '15212345678',
@@ -51,14 +51,14 @@ class m150725_192740_seed_data extends Migration
             'city' => '开封市',
             'area' => '龙亭区'
         ]);
-        $this->insert('{{%user_profile}}', [
+        /*$this->insert('{{%user_profile}}', [
             'user_id'=>2,
             'locale'=>Yii::$app->sourceLanguage
         ]);
         $this->insert('{{%user_profile}}', [
             'user_id'=>3,
             'locale'=>Yii::$app->sourceLanguage
-        ]);
+        ]);*/
 
         $this->insert('{{%page}}', [
             'slug' => 'about',
@@ -216,11 +216,11 @@ class m150725_192740_seed_data extends Migration
         ]);
 
         $this->delete('{{%user_profile}}', [
-            'user_id' => [1, 2, 3]
+            'user_id' => [1]
         ]);
 
         $this->delete('{{%user}}', [
-            'id' => [1, 2, 3]
+            'id' => [1]
         ]);
     }
 }

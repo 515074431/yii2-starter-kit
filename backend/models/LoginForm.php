@@ -2,7 +2,7 @@
 namespace backend\models;
 
 use cheatsheet\Time;
-use common\models\User;
+use common\models\AdminUser;
 use Yii;
 use yii\base\Exception;
 use yii\base\Model;
@@ -90,7 +90,7 @@ class LoginForm extends Model
     public function getUser()
     {
         if ($this->user === false) {
-            $this->user = User::find()
+            $this->user = AdminUser::find()
                 ->andWhere(['or', ['username'=>$this->username], ['mobile'=>$this->username], ['email'=>$this->username]])
                 ->one();
         }

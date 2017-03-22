@@ -1,11 +1,11 @@
 <?php
 
-use common\models\User;
+use common\models\AdminUser;
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model backend\models\UserForm */
+/* @var $model backend\models\AdminUserForm */
 /* @var $form yii\bootstrap\ActiveForm */
 /* @var $roles yii\rbac\Role[] */
 /* @var $permissions yii\rbac\Permission[] */
@@ -18,9 +18,8 @@ use yii\bootstrap\ActiveForm;
         <?php echo $form->field($model, 'email') ?>
         <?php echo $form->field($model, 'mobile') ?>
         <?php echo $form->field($model, 'password')->passwordInput() ?>
-        <?php echo $form->field($model, 'status')->dropDownList(User::statuses()) ?>
-        <!--注册前台用户先不设置角色-->
-        <?php  $form->field($model, 'roles')->checkboxList($roles) ?>
+        <?php echo $form->field($model, 'status')->dropDownList(AdminUser::statuses()) ?>
+        <?php echo $form->field($model, 'roles')->checkboxList($roles) ?>
         <div class="form-group">
             <?php echo Html::submitButton(Yii::t('backend', 'Save'), ['class' => 'btn btn-primary', 'name' => 'signup-button']) ?>
         </div>

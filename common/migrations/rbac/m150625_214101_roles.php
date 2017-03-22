@@ -22,7 +22,7 @@ class m150625_214101_roles extends Migration
 
         $this->auth->assign($admin, 1);
         $this->auth->assign($manager, 2);
-        $this->auth->assign($user, 3);
+        //$this->auth->assign($user, 3);
     }
 
     public function down()

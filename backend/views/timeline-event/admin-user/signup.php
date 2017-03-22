@@ -24,7 +24,7 @@
     <div class="timeline-footer">
         <?php echo \yii\helpers\Html::a(
             Yii::t('backend', 'View user'),
-            ['/user/view', 'id' => $model->data['user_id']],
+            ['/admin-user/view', 'id' => $model->data['user_id']],
             ['class' => 'btn btn-success btn-sm']
         ) ?>
     </div>

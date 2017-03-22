@@ -299,12 +299,13 @@ That`s all. After provision application will be accessible on http://yii2-starte
 ## Demo data
 ### Demo Users
 ```
+后台用户
 Login: webmaster
 Password: webmaster
 
 Login: manager
 Password: manager
-
+前台用户
 Login: user
 Password: user
 ```
