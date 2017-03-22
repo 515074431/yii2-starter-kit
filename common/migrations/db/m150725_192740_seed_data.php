@@ -47,8 +47,9 @@ class m150725_192740_seed_data extends Migration
         $this->insert('{{%user_profile}}', [
             'user_id'=>1,
             'locale'=>Yii::$app->sourceLanguage,
-            'firstname' => 'John',
-            'lastname' => 'Doe'
+            'province' => '河南省',
+            'city' => '开封市',
+            'area' => '龙亭区'
         ]);
         $this->insert('{{%user_profile}}', [
             'user_id'=>2,

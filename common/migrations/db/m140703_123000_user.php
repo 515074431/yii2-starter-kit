@@ -31,9 +31,9 @@ class m140703_123000_user extends Migration
 
         $this->createTable('{{%user_profile}}', [
             'user_id' => $this->primaryKey(),
-            'firstname' => $this->string(),
-            'middlename' => $this->string(),
-            'lastname' => $this->string(),
+            'province' => $this->string(),
+            'city' => $this->string(),
+            'area' => $this->string(),
             'avatar_path' => $this->string(),
             'avatar_base_url' => $this->string(),
             'locale' => $this->string(32)->notNull(),

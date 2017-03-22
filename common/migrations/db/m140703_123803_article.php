@@ -27,6 +27,10 @@ class m140703_123803_article extends Migration
             'id' => $this->primaryKey(),
             'slug' => $this->string(1024)->notNull(),
             'title' => $this->string(512)->notNull(),
+            'summary' => $this->string(512)->comment('副标题'),
+            'source' => $this->string(256)->comment('来源'),
+            'id_third' => $this->string(50)->comment('第三方ID'),
+
             'body' => $this->text()->notNull(),
             'view' => $this->string(),
             'category_id' => $this->integer(),

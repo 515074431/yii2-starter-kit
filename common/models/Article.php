@@ -111,11 +111,14 @@ class Article extends ActiveRecord
     public function rules()
     {
         return [
-            [['title','summary', 'body', 'category_id'], 'required'],
+            [['title', 'body', 'category_id'], 'required'],
             [['slug'], 'unique'],
             [['body'], 'string'],
             [['published_at'], 'default', 'value' => function () {
                 return date(DATE_ISO8601);
+            }],
+            ['summary','default', 'value' => function ($model) {
+                return $model->title;
             }],
             [['published_at'], 'filter', 'filter' => 'strtotime', 'skipOnEmpty' => true],
             [['category_id'], 'exist', 'targetClass' => ArticleCategory::className(), 'targetAttribute' => 'id'],
