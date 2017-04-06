@@ -30,7 +30,7 @@ nginx:
 mailcatcher:
     image: schickling/mailcatcher:latest
     ports:
-      - "1080:1080"
+      - 1080
 
 db:
   image: mysql:5.7
