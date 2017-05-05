@@ -20,7 +20,7 @@ app:
 nginx:
   image: nginx:latest
   ports:
-    - "80:80"
+    - "8800:80"
   volumes:
     - ./:/app
     - ./docker/nginx/vhost.conf:/etc/nginx/conf.d/vhost.conf
