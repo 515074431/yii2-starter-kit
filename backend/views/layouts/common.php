@@ -9,6 +9,8 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
+use mdm\admin\components\MenuHelper;
+use mdm\admin\components\MenuWidget;
 
 $bundle = BackendAsset::register($this);
 ?>
@@ -199,6 +201,13 @@ $bundle = BackendAsset::register($this);
                         ]
                     ]
                 ]) ?>
+                <?php
+                //这里我们对一开始写的菜单menu进行了优化
+                echo MenuWidget::widget([
+                    'options' => ['class' => 'sidebar-menu'],
+                    'items' => MenuHelper::getAssignedMenu(Yii::$app->user->id, null, 'mdm\admin\components\MenuWidget::menuHelperCallback'),
+                ]);
+                ?>
             </section>
             <!-- /.sidebar -->
         </aside>
@@ -227,7 +236,12 @@ $bundle = BackendAsset::register($this);
                         'body'=>ArrayHelper::getValue(Yii::$app->session->getFlash('alert'), 'body'),
                         'options'=>ArrayHelper::getValue(Yii::$app->session->getFlash('alert'), 'options'),
                     ])?>
+
                 <?php endif; ?>
+
+
+
+
                 <?php echo $content ?>
             </section><!-- /.content -->
         </aside><!-- /.right-side -->

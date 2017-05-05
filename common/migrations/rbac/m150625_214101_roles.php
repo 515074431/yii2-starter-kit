@@ -16,9 +16,14 @@ class m150625_214101_roles extends Migration
         $this->auth->add($manager);
         $this->auth->addChild($manager, $user);
 
+        //$all = $this->auth->createPermission('/*');
+
         $admin = $this->auth->createRole(User::ROLE_ADMINISTRATOR);
         $this->auth->add($admin);
         $this->auth->addChild($admin, $manager);
+        //$this->auth->addChild($admin,$all);
+
+
 
         $this->auth->assign($admin, 1);
         $this->auth->assign($manager, 2);

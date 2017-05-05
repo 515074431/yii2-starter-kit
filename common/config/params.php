@@ -8,10 +8,6 @@ define("WRONG_ORDER_ID",10);
 define("WRONG_TYPE_CODE", 32);
 
 return [
-    'mdm.admin.configs' => [
-        'db' => 'db',
-        'menuTable' => 'admin_menu',
-      ],
     'adminEmail' => 'admin@example.com',
     'supportEmail' => 'support@example.com',
     'user.TokenExpire' => 3600*24*30,

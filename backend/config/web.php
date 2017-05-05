@@ -32,15 +32,27 @@ $config = [
             'enableAutoLogin' => true,
             'as afterLogin' => 'common\behaviors\LoginTimestampBehavior'
         ],
+        //components数组中加入authManager组件,有PhpManager和DbManager两种方式,
+        //PhpManager将权限关系保存在文件里,这里使用的是DbManager方式,将权限关系保存在数据库.
+        "authManager" => [
+            "class" => 'yii\rbac\DbManager', //这里记得用单引号而不是双引号
+            "defaultRoles" => ["guest"],
+        ],
     ],
     'modules'=>[
         'i18n' => [
             'class' => 'backend\modules\i18n\Module',
             'defaultRoute'=>'i18n-message/index'
-        ]
+        ],
+        "admin" => [
+            "class" => "mdm\admin\Module",
+        ],
+    ],
+    "aliases" => [
+        "@mdm/admin" => "@vendor/zc/yii2-admin",
     ],
     'as globalAccess'=>[
-        'class'=>'\common\behaviors\GlobalAccessBehavior',
+        /*'class'=>'\common\behaviors\GlobalAccessBehavior',
         'rules'=>[
             [
                 'controllers'=>['sign-in'],
@@ -78,7 +90,17 @@ $config = [
                 'allow' => true,
                 'roles' => ['manager'],
             ]
-        ]
+        ]*/
+        //ACF肯定是要加的，因为粗心导致该配置漏掉了，很是抱歉
+                'class' => 'mdm\admin\components\AccessControl',
+                'allowActions' => [
+                        //这里是允许访问的action
+                        //controller/action
+                        '*',
+                        'sign-in/*',
+                        'debug/default',
+                        'site/error'
+                    ]
     ]
 ];
 
@@ -89,7 +111,8 @@ if (YII_ENV_DEV) {
             'crud' => [
                 'class'=>'yii\gii\generators\crud\Generator',
                 'templates'=>[
-                    'yii2-starter-kit' => Yii::getAlias('@backend/views/_gii/templates')
+                    'yii2-starter-kit' => Yii::getAlias('@backend/views/_gii/templates'),
+                    'yii2-starter-kit-copy-right' => '@vendor/zc/yii2-admin/_gii/templates',
                 ],
                 'template' => 'yii2-starter-kit',
                 'messageCategory' => 'backend'
