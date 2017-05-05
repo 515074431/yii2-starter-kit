@@ -34,7 +34,7 @@ class m170322_100859_seed_data extends Migration
 
         $this->insert('{{%admin_user_profile}}', [
             'user_id'=>1,
-            'locale'=>Yii::$app->sourceLanguage,
+            'locale'=>'zh-CN',//Yii::$app->sourceLanguage,
             'province' => '河南省',
             'city' => '开封市',
             'area' => '龙亭区'
