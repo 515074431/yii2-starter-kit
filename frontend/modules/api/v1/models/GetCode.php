@@ -2,7 +2,7 @@
 namespace frontend\modules\api\v1\models;
 
 
-use common\lib\Sms;
+use common\lib\AliSms;
 use common\models\User;
 use Yii;
 use yii\base\Model;
@@ -68,7 +68,7 @@ class GetCode extends Model
      */
     public function sendCode()
     {
-        $return = Sms::sendCodeByHuYi($this->mobile);
+        $return = AliSms::sendCode($this->mobile);
         if(!$return['status']){
             $this->addError('code','短信验证码不正确');
         }

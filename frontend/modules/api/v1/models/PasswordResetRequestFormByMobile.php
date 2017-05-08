@@ -3,7 +3,7 @@ namespace frontend\modules\api\v1\models;
 
 use cheatsheet\Time;
 use common\commands\SendEmailCommand;
-use common\lib\Sms;
+use common\lib\AliSms;
 use common\models\UserToken;
 use Yii;
 use common\models\User;
@@ -63,7 +63,7 @@ class PasswordResetRequestFormByMobile extends Model
             $token = UserToken::create($user->id, UserToken::TYPE_PASSWORD_RESET, Time::SECONDS_IN_A_DAY);
             if ($user->save()) {
 
-                $return = Sms::sendCodeByHuYi($this->mobile);
+                $return = AliSms::sendCode($this->mobile);
                 if(!$return['status']){
                     $this->addError('code','短信验证码不正确');
                 }
