@@ -165,12 +165,12 @@ class SignupForm extends Model
     public function validateMobile()
     {
         if(preg_match("/^1[34578]\d{9}$/", $this->mobile)){
-            $user = User::findByMobile($this->mobile);
-            if(!$user){
+            //$user = User::findByMobile($this->mobile);
+            //if(!$user){
                 return true;
-            }else{
+            //}else{
                 $this->addError('mobile','手机已注册');
-            }
+            //}
         }else{
             $this->addError('mobile','手机格式不正确');
         }

@@ -88,6 +88,7 @@ class AdminUserController extends Controller
         }
 
         return $this->render('update', [
+            'id' => $id,
             'model' => $model,
             'roles' => ArrayHelper::map(Yii::$app->authManager->getRoles(), 'name', 'name')
         ]);
