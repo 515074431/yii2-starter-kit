@@ -16,6 +16,11 @@ $config = [
             ]
         ]
     ],
+    'controllerMap' => [
+
+            'sms-api' => 'zc\yii2Alisms\controllers\ApiController',
+
+    ],
     'components' => [
         'authClientCollection' => [
             'class' => 'yii\authclient\Collection',

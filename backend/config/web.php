@@ -47,6 +47,9 @@ $config = [
         "admin" => [
             "class" => "mdm\admin\Module",
         ],
+        "sms" => [
+            "class" => "zc\yii2Alisms\Module",
+        ]
     ],
     "aliases" => [
         "@mdm/admin" => "@vendor/zc/yii2-admin",
