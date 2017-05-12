@@ -52,7 +52,8 @@ class ResetPasswordForm extends Model
             ['mobile','validateMobile'],
             //['code','checkCode'],
             ['code',  function ($attribute, $params) {
-                if(!\zc\yii2Alisms\Sms::checkCode($this->mobile,$this->code)){
+                $smsTtype = 1;
+                if(!\zc\yii2Alisms\Sms::checkCode($this->mobile,$this->code,$smsTtype)){
                     $this->addError($this->$attribute,'手机验证码不正确');
                     return false;
                 }
