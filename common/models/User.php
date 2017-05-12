@@ -1,6 +1,7 @@
 <?php
 namespace common\models;
 
+use cheatsheet\Time;
 use common\commands\AddToTimelineCommand;
 use common\models\query\UserQuery;
 use Yii;
@@ -47,6 +48,7 @@ class User extends ActiveRecord implements IdentityInterface
     const EVENT_AFTER_SIGNUP = 'afterSignup';
     const EVENT_AFTER_LOGIN = 'afterLogin';
 
+    public $token = null;
     /**
      * @inheritdoc
      */
@@ -159,34 +161,63 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function generateAccessToken()
     {
-        return $this->access_token = Yii::$app->security->generateRandomString(29) . '_' . time();
+        //return $this->access_token = Yii::$app->security->generateRandomString(29) . '_' . time();
+        return $this->access_token = Yii::$app->security->generateRandomString(40) ;
     }
+
+    /**
+     * 获得userToken对象
+     * @param $token
+     * @param $type
+     * @return array|null|ActiveRecord
+     */
+    public static function userToken($token,$type){
+        return UserToken::find()->where(['token'=>$token,'type'=>$type])->andWhere(['>', 'expire_at', time()])->one();
+    }
+
+    /**
+     * 设置token
+     * @param string $type
+     */
+    public function setToken($type=UserToken::TYPE_ACTIVATION){
+        //生成用户token
+        $token = UserToken::create(
+            $this->id,
+            $type,
+            Time::SECONDS_IN_A_DAY
+        );
+        $this->token = $token->__toString();
+    }
+
     /**
      * 校验api_token是否有效
+     * @param $token
+     * @param int $type 类型
+     * @return bool
      */
     public static function accessTokenIsValid($token)
     {
+        $type=Yii::$app->request->get('type',UserToken::TYPE_ACTIVATION);
         if (empty($token)) {
             return false;
         }
-
-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
-        $expire = Yii::$app->params['user.TokenExpire'];
-        return $timestamp + $expire >= time();
+        $userToken = self::userToken($token,$type);
+        return !is_null($userToken);
     }
     /**
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
+
+        $type=Yii::$app->request->get('type',UserToken::TYPE_ACTIVATION);
         // 如果token无效的话，
         if(!static::accessTokenIsValid($token)) {
             throw new \yii\web\UnauthorizedHttpException("token is invalid.");
         }
-        return static::find()
-            ->active()
-            ->andWhere(['access_token' => $token])
-            ->one();
+        $userToken = static::userToken($token,$type);
+        return static::findOne($userToken->user_id);
+        //return static::userToken($token,$type)->getUser();
     }
 
     /**
@@ -275,6 +306,20 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->password_hash = Yii::$app->getSecurity()->generatePasswordHash($password);
         $this->generateAccessToken();
+
+    }
+    /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     */
+    public function reSetPassword($password)
+    {
+        $this->password = $password;
+        //修改所有token
+        //To Do
+        UserToken::resetExpire($this->id);
+
     }
 
     /**
@@ -320,9 +365,13 @@ class User extends ActiveRecord implements IdentityInterface
         $profile->locale = Yii::$app->language;
         $profile->load($profileData, '');
         $this->link('userProfile', $profile);
+
+        //生成用户token
+        $this->setToken(UserToken::TYPE_ACTIVATION);
+
         $this->trigger(self::EVENT_AFTER_SIGNUP);
         // Default role
-        //$auth = Yii::$app->authManager;
+        //$auth = Yii::$app->authManager;;
         //$auth->assign($auth->getRole(User::ROLE_USER), $this->getId());
     }
 

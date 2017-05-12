@@ -3,6 +3,7 @@ namespace frontend\modules\api\v1\models;
 
 use cheatsheet\Time;
 use common\models\User;
+use common\models\UserToken;
 use Yii;
 use yii\base\Model;
 
@@ -76,8 +77,7 @@ class LoginForm extends Model
                 return true;
             }*/
             $user = $this->getUser();
-            $user->generateAccessToken();
-            $user->save(false);
+            $user->setToken(UserToken::TYPE_ACTIVATION);
             return $user;
         }else{
             $response = Yii::$app->getResponse();

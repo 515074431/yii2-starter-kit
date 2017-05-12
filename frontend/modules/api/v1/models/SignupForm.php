@@ -39,6 +39,11 @@ class SignupForm extends Model
      * @var邀请码
      */
     public $invitation_code;
+    /**
+     * @var 类型
+     */
+    public $type;
+
     public function afterValidate()
     {
         parent::afterValidate();
@@ -76,12 +81,18 @@ class SignupForm extends Model
             //['code', 'checkCode'],
             ['code',  function ($attribute, $params) {
                 if(!\zc\yii2Alisms\Sms::checkCode($this->mobile,$this->code)){
-                    //return true;
-                //}else{
-                    $this->addError($this->$attribute,'手机验证码不正确');
+                    $this->addError('code','手机验证码不正确');
                     return false;
                 }
             }],
+            ['type','required'],
+            ['type',function($attribute, $params){
+                $types = UserToken::types();
+                if(!isset($types[$this->$attribute])){
+                    $this->addError('type','错误的用户类型');
+                }
+
+            },'message'=>'类别不对'],
             ['invitation_code','string','max'=>11],
         ];
     }
@@ -121,7 +132,7 @@ class SignupForm extends Model
             if ($shouldBeActivated) {
                 $token = UserToken::create(
                     $user->id,
-                    UserToken::TYPE_ACTIVATION,
+                    $this->type,
                     Time::SECONDS_IN_A_DAY
                 );
                 Yii::$app->commandBus->handle(new SendEmailCommand([

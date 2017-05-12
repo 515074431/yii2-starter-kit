@@ -50,7 +50,13 @@ class ResetPasswordForm extends Model
             [['mobile','code','password'], 'required'],
             ['mobile','string','min'=>11,'max'=>'11'],
             ['mobile','validateMobile'],
-            ['code','checkCode'],
+            //['code','checkCode'],
+            ['code',  function ($attribute, $params) {
+                if(!\zc\yii2Alisms\Sms::checkCode($this->mobile,$this->code)){
+                    $this->addError($this->$attribute,'手机验证码不正确');
+                    return false;
+                }
+            }],
             ['password', 'string', 'min' => 6],
         ];
     }
@@ -63,9 +69,8 @@ class ResetPasswordForm extends Model
     public function resetPassword()
     {
         $user = User::findByMobile($this->mobile);
-        $user->password = $this->password;
+        $user->reSetPassword($this->password);
         if($user->save()) {
-            Yii::$app->cache->delete('sendCode'.$this->mobile);
             return $user;
         }else{
             $this->addError('password','修改密码失败');

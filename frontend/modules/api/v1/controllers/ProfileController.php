@@ -132,8 +132,8 @@ class ProfileController extends ActiveController
                 'username' => $user->username,
                 'mobile' => $user->mobile,
                 'invitation_code' => $user->id,
-                'balance' => $user->balance,
-                'solid_balance' => $user->solid_balance,
+                //'balance' => $user->balance,
+                //'solid_balance' => $user->solid_balance,
                 'avatar' => $userProfile->avatar,
                 'profile' => $userProfile,
             ];

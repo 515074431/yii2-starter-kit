@@ -26,6 +26,16 @@ class UserToken extends ActiveRecord
     const TOKEN_LENGTH = 40;
     const TYPE_ACTIVATION = 'activation';
     const TYPE_PASSWORD_RESET = 'password_reset';
+    const TYPE_XIAOCONG = 'xiaocong';
+    const TYPE_MILIAO = 'miliao';
+
+
+    public static function types(){
+        return [
+            self::TYPE_XIAOCONG => '小葱',
+            self::TYPE_MILIAO => '蜜聊',
+        ];
+    }
 
     /**
      * @inheritdoc
@@ -48,10 +58,10 @@ class UserToken extends ActiveRecord
     /**
      * @return UserTokenQuery
      */
-    public static function find()
+    /*public static function find()
     {
         return new UserTokenQuery(get_called_class());
-    }
+    }*/
 
 
     /**
@@ -99,12 +109,24 @@ class UserToken extends ActiveRecord
      */
     public static function create($user_id, $type, $duration = null)
     {
+        $userTokenExpire = Yii::$app->params['user.TokenExpire'];
+        $model = self::find()->where([
+            'user_id' => $user_id,
+            'type' => $type,
+            //'expire_at' => $duration ? time() + $duration : null
+        ])->one();
+        if($model){
+            $model->token = Yii::$app->security->generateRandomString(self::TOKEN_LENGTH);
+            $model->renew($userTokenExpire);
+            $model->save();
+            return $model;
+        }
         $model = new self;
         $model->setAttributes([
             'user_id' => $user_id,
             'type' => $type,
             'token' => Yii::$app->security->generateRandomString(self::TOKEN_LENGTH),
-            'expire_at' => $duration ? time() + $duration : null
+            'expire_at' => $userTokenExpire ? time() + $userTokenExpire : null
         ]);
 
         if (!$model->save()) {
@@ -118,10 +140,11 @@ class UserToken extends ActiveRecord
     /**
      * @param int|null $duration
      */
-    public function renew($duration)
+    public function renew($duration=null)
     {
         $this->updateAttributes([
-            'expire_at' => $duration ? time() + $duration : null
+            'expire_at' => $duration ? time() + $duration : null,
+            'updated_at' => time()
         ]);
     }
 
@@ -131,5 +154,13 @@ class UserToken extends ActiveRecord
     public function __toString()
     {
         return $this->token;
+    }
+
+    /**
+     * 重置用户所有token过期时间
+     * @param $user_id
+     */
+    public static function resetExpire($user_id){
+            self::updateAll(['expire_at' => time()],"user_id = $user_id");
     }
 }

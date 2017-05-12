@@ -124,7 +124,7 @@ class SignInController extends ActiveController
             if($user){
                 return [
                     'id' => $user->id,
-                    'access_token' => $user->access_token,
+                    'access_token' => $user->token,
                 ];
             }else{
                 return $model->errors;
@@ -157,7 +157,7 @@ class SignInController extends ActiveController
             if ($user) {
                 return [
                     'id' => $user->id,
-                    'access_token' => $user->access_token,
+                    'access_token' => $user->token,
                 ];
             }else{
                 return $model->errors;
@@ -229,6 +229,7 @@ class SignInController extends ActiveController
         if ($model->load(Yii::$app->request->post(),'') && $model->validate() ) {
             $user =  $model->resetPassword();
             if($user){
+                return ['msg'=>'修改成功，请重新登录。'];
                 return [
                     'id' => $user->id,
                     'access_token' => $user->access_token,
