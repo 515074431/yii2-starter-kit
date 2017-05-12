@@ -73,7 +73,15 @@ class SignupForm extends Model
             ['password', 'string', 'min' => 6],
 
             ['code', 'required'],
-            ['code', 'checkCode'],
+            //['code', 'checkCode'],
+            ['code',  function ($attribute, $params) {
+                if(!\zc\yii2Alisms\Sms::checkCode($this->mobile,$this->code)){
+                    //return true;
+                //}else{
+                    $this->addError($this->$attribute,'手机验证码不正确');
+                    return false;
+                }
+            }],
             ['invitation_code','string','max'=>11],
         ];
     }
@@ -103,7 +111,7 @@ class SignupForm extends Model
             $user = new User();
             $user->username = $this->username;
             $user->mobile = $this->mobile;
-            $user->invitation_code = $this->invitation_code;
+            //$user->invitation_code = $this->invitation_code;
             $user->status = $shouldBeActivated ? User::STATUS_NOT_ACTIVE : User::STATUS_ACTIVE;
             $user->setPassword($this->password);
             if(!$user->save()) {
