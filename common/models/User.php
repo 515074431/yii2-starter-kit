@@ -31,6 +31,7 @@ use yii\web\IdentityInterface;
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $logged_at
+ * @property integer $remarks
  * @property string $password write-only password
  *
  * @property \common\models\UserProfile $userProfile
@@ -49,6 +50,21 @@ class User extends ActiveRecord implements IdentityInterface
     const EVENT_AFTER_LOGIN = 'afterLogin';
 
     public $token = null;
+    public $type = null;
+
+    /**
+     * @param $type
+     */
+    public function setType($type){
+        $this->type = $type;
+    }
+
+    /**
+     * @return null
+     */
+    public function getType(){
+        return $this->type;
+    }
     /**
      * @inheritdoc
      */
@@ -116,7 +132,8 @@ class User extends ActiveRecord implements IdentityInterface
             [['username', 'mobile', 'email'], 'unique'],
             ['status', 'default', 'value' => self::STATUS_NOT_ACTIVE],
             ['status', 'in', 'range' => array_keys(self::statuses())],
-            [['username'], 'filter', 'filter' => '\yii\helpers\Html::encode']
+            [['username'], 'filter', 'filter' => '\yii\helpers\Html::encode'],
+            ['remarks','string','max'=>255]
         ];
     }
 
@@ -135,6 +152,7 @@ class User extends ActiveRecord implements IdentityInterface
             'created_at' => Yii::t('common', 'Created at'),
             'updated_at' => Yii::t('common', 'Updated at'),
             'logged_at' => Yii::t('common', 'Last login'),
+            'remarks' => '备注',
         ];
     }
 
@@ -197,11 +215,12 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function accessTokenIsValid($token)
     {
-        $type=Yii::$app->request->get('type',UserToken::TYPE_ACTIVATION);
+        //$type=Yii::$app->request->get('type',UserToken::TYPE_ACTIVATION);
         if (empty($token)) {
             return false;
         }
-        $userToken = self::userToken($token,$type);
+        //$userToken = self::userToken($token,$type);
+        $userToken = UserToken::findOne(['token'=>$token]);
         return !is_null($userToken);
     }
     /**
@@ -210,12 +229,13 @@ class User extends ActiveRecord implements IdentityInterface
     public static function findIdentityByAccessToken($token, $type = null)
     {
 
-        $type=Yii::$app->request->get('type',UserToken::TYPE_ACTIVATION);
+        //$type=Yii::$app->request->get('type',UserToken::TYPE_ACTIVATION);
         // 如果token无效的话，
         if(!static::accessTokenIsValid($token)) {
             throw new \yii\web\UnauthorizedHttpException("token is invalid.");
         }
-        $userToken = static::userToken($token,$type);
+        //$userToken = static::userToken($token,$type);
+        $userToken = UserToken::findOne(['token'=>$token]);
         return static::findOne($userToken->user_id);
         //return static::userToken($token,$type)->getUser();
     }
@@ -318,6 +338,7 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password = $password;
         //修改所有token
         //To Do
+        //UserToken::resetExpire($this->id,$this->type);
         UserToken::resetExpire($this->id);
 
     }
@@ -367,7 +388,7 @@ class User extends ActiveRecord implements IdentityInterface
         $this->link('userProfile', $profile);
 
         //生成用户token
-        $this->setToken(UserToken::TYPE_ACTIVATION);
+        $this->setToken($this->type);
 
         $this->trigger(self::EVENT_AFTER_SIGNUP);
         // Default role

@@ -3,7 +3,7 @@ namespace frontend\modules\api\v1\models;
 
 use cheatsheet\Time;
 use common\commands\SendEmailCommand;
-use common\lib\Sms;
+use common\models\Members;
 use common\models\User;
 use common\models\UserToken;
 use frontend\modules\user\Module;
@@ -19,6 +19,7 @@ use yii\web\ServerErrorHttpException;
  */
 class SignupForm extends Model
 {
+    const SCENARIO_GENERATE = 'generate';
     /**
      * @var
      */
@@ -43,6 +44,14 @@ class SignupForm extends Model
      * @var 类型
      */
     public $type;
+    /**
+     * @var
+     */
+    public $smsid = 1;
+    /**
+     * @var 备注
+     */
+    public $remarks;
 
     public function afterValidate()
     {
@@ -59,7 +68,7 @@ class SignupForm extends Model
     {
         return [
             ['username', 'filter', 'filter' => 'trim'],
-            ['username', 'required'],
+            [['username','password','code', 'type','smsid'], 'required'],
             ['username', 'unique',
                 'targetClass'=>'\common\models\User',
                 'message' => Yii::t('frontend', 'This username has already been taken.')
@@ -74,19 +83,17 @@ class SignupForm extends Model
                 'message' => Yii::t('frontend', 'This mobile address has already been taken.')
             ],
 
-            ['password', 'required'],
             ['password', 'string', 'min' => 6],
+            ['code','safe','on'=>self::SCENARIO_GENERATE],
 
-            ['code', 'required'],
             //['code', 'checkCode'],
             ['code',  function ($attribute, $params) {
-                $smsType = 1;
-                if(!\zc\yii2Alisms\Sms::checkCode($this->mobile,$this->code,$smsType)){
+                //$smsType = 1;
+                if(!\zc\yii2Alisms\Sms::checkCode($this->mobile,$this->code,$this->smsid)){
                     $this->addError('code','手机验证码不正确');
                     return false;
                 }
             }],
-            ['type','required'],
             ['type',function($attribute, $params){
                 $types = UserToken::types();
                 if(!isset($types[$this->$attribute])){
@@ -95,7 +102,15 @@ class SignupForm extends Model
 
             },'message'=>'类别不对'],
             ['invitation_code','string','max'=>11],
+            ['remarks','string','max'=>255]
         ];
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_GENERATE] = ['username','mobile','password','type'];
+        return $scenarios;
     }
 
     /**
@@ -107,6 +122,7 @@ class SignupForm extends Model
             'username'=>Yii::t('frontend', 'Username'),
             'mobile'=>Yii::t('frontend', 'Mobile'),
             'password'=>Yii::t('frontend', 'Password'),
+            'smsid'=>'SMS ID',
             'invitation_code'=>'邀请码',
         ];
     }
@@ -123,12 +139,14 @@ class SignupForm extends Model
             $user = new User();
             $user->username = $this->username;
             $user->mobile = $this->mobile;
-            //$user->invitation_code = $this->invitation_code;
+            $user->invitation_code = $this->invitation_code;
             $user->status = $shouldBeActivated ? User::STATUS_NOT_ACTIVE : User::STATUS_ACTIVE;
+            $user->remarks = $this->remarks;
             $user->setPassword($this->password);
             if(!$user->save()) {
                 throw new Exception("User couldn't be  saved");
             }
+            $user->setType($this->type);
             $user->afterSignup();
             if ($shouldBeActivated) {
                 $token = UserToken::create(
