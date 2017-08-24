@@ -18,13 +18,13 @@ class Module extends \frontend\modules\api\Module
             $response = $event->sender;
             if ($response->data !== null ) {
                 $response->data = [
-                    'success' => $response->isSuccessful,
+                    'status' => $response->isSuccessful,
                     'data' => $response->data,
                 ];
                 $response->statusCode = 200;
             }else{
                 $response->data = [
-                    'success' => false,
+                    'status' => false,
                     'data' => $response->data,
                 ];
                 $response->statusCode = 200;
