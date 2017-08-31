@@ -15,7 +15,10 @@ class LoginForm extends Model
     public $identity;
     public $password;
     public $rememberMe = true;
-
+    /**
+     * @var 类型
+     */
+    public $type;
     private $user = false;
 
     public function afterValidate()
@@ -38,6 +41,14 @@ class LoginForm extends Model
             ['rememberMe', 'boolean'],
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
+            ['type','required'],
+            ['type',function($attribute, $params){
+                $types = UserToken::types();
+                if(!isset($types[$this->$attribute])){
+                    $this->addError('type','错误的用户类型');
+                }
+
+            },'message'=>'类别不对'],
         ];
     }
 
@@ -77,7 +88,7 @@ class LoginForm extends Model
                 return true;
             }*/
             $user = $this->getUser();
-            $user->setToken(UserToken::TYPE_ACTIVATION);
+            $user->setToken($this->type);
             return $user;
         }else{
             $response = Yii::$app->getResponse();
