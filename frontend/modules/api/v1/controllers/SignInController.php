@@ -226,7 +226,7 @@ class SignInController extends ActiveController
         $model = new ResetPasswordForm();
 
 
-        if ($model->load(Yii::$app->request->post(),'') && $model->validate() ) {
+        if ($model->load(Yii::$app->request->getQueryParams(),'') && $model->validate() ) {
             $user =  $model->resetPassword();
             if($user){
                 return ['msg'=>'修改成功，请重新登录。'];
@@ -239,6 +239,11 @@ class SignInController extends ActiveController
             }
 
         }else{
+            return [
+                'load'=>$model->load(Yii::$app->request->post(),''),
+                'validate'=>$model->validate(),
+                'errors'=>$model->errors
+            ];
             return $model->errors;
         }
 
