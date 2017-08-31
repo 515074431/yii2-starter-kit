@@ -220,7 +220,7 @@ class User extends ActiveRecord implements IdentityInterface
             return false;
         }
         //$userToken = self::userToken($token,$type);
-        $userToken = UserToken::findOne(['token'=>$token]);
+        $userToken = UserToken::findOne(['token'=>$token,'expire_at'=>time()]);
         return !is_null($userToken);
     }
     /**
