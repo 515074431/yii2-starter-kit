@@ -220,7 +220,7 @@ class User extends ActiveRecord implements IdentityInterface
             return false;
         }
         //$userToken = self::userToken($token,$type);
-        $userToken = UserToken::findOne(['token'=>$token,'expire_at'=>time()]);
+        $userToken = UserToken::find()->where(['token'=>$token])->andWhere(['>','expire_at',time()])->one();
         return !is_null($userToken);
     }
     /**
@@ -232,10 +232,10 @@ class User extends ActiveRecord implements IdentityInterface
         //$type=Yii::$app->request->get('type',UserToken::TYPE_ACTIVATION);
         // 如果token无效的话，
         if(!static::accessTokenIsValid($token)) {
-            throw new \yii\web\UnauthorizedHttpException("token is invalid.");
+            throw new \yii\web\UnauthorizedHttpException("token 失效.");
         }
         //$userToken = static::userToken($token,$type);
-        $userToken = UserToken::findOne(['token'=>$token]);
+        $userToken = UserToken::find()->where(['token'=>$token])->andWhere(['>','expire_at',time()])->one();
         return static::findOne($userToken->user_id);
         //return static::userToken($token,$type)->getUser();
     }
