@@ -25,6 +25,10 @@ class ResetPasswordForm extends Model
      * @var
      */
     public $code;
+    /**
+     * @var
+     */
+    public $smsid = 1;
 
     /**
      * @var \common\models\UserToken
@@ -47,13 +51,12 @@ class ResetPasswordForm extends Model
     public function rules()
     {
         return [
-            [['mobile','code','password'], 'required'],
+            [['mobile','code','password','smsid'], 'required'],
             ['mobile','string','min'=>11,'max'=>'11'],
             ['mobile','validateMobile'],
             //['code','checkCode'],
             ['code',  function ($attribute, $params) {
-                $smsTtype = 1;
-                if(!\zc\yii2Alisms\Sms::checkCode($this->mobile,$this->code,$smsTtype)){
+                if(!\zc\yii2Alisms\Sms::checkCode($this->mobile,$this->code,$this->smsid)){
                     $this->addError($this->$attribute,'手机验证码不正确');
                     return false;
                 }
