@@ -99,7 +99,7 @@ $config = [
                 'allowActions' => [
                         //这里是允许访问的action
                         //controller/action
-                        '*',
+                        //'*',
                         'sign-in/*',
                         'debug/default',
                         'site/error'

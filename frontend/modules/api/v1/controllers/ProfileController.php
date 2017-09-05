@@ -151,7 +151,7 @@ class ProfileController extends ActiveController
     {
         $model = Yii::$app->user->identity->userProfile;
 
-        if ($model->load(Yii::$app->getRequest()->getBodyParams(),'') && $model->save()) {
+        if ($model->load(Yii::$app->request->post(),'') && $model->save()) {
             return $model;
         }else{
             return $model->errors;
