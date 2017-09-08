@@ -154,6 +154,8 @@ class ProfileController extends ActiveController
         if ($model->load(Yii::$app->request->post(),'') && $model->save()) {
             return $model;
         }else{
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(401);
             return $model->errors;
         }
     }
