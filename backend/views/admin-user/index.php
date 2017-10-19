@@ -30,6 +30,13 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
         'columns' => [
             'id',
+            [
+                'label'=>'角色',
+                'value'=>function($model){
+                    $assignments =  Yii::$app->authManager->getAssignments($model->id);
+                    return join(',',array_keys($assignments));
+                }
+            ],
             'username',
             'email:email',
             'mobile',
