@@ -174,6 +174,9 @@ if (YII_ENV_PROD) {
 }
 
 if (YII_ENV_DEV) {
+    $config["aliases"] = [
+        "@yii/gii" => "@vendor/zc/yii2-zii",
+    ];
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class'=>'yii\gii\Module'

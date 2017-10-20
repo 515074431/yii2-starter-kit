@@ -174,4 +174,12 @@ class Article extends ActiveRecord
     {
         return $this->hasMany(ArticleAttachment::className(), ['article_id' => 'id']);
     }
+
+    /**
+     * 数据表字段属性
+     * @return array
+     */
+    public function clumnOptions(){
+        return $this->tableClumnOptions;
+    }
 }

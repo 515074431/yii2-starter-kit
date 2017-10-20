@@ -56,7 +56,8 @@
     "yiisoft/yii2-faker": "^2.0.0",
     "codeception/codeception": "^2.0",
     "codeception/specify": "^0.4.3",
-    "codeception/verify": "^0.3.0"
+    "codeception/verify": "^0.3.0",
+    "zc/yii2-zii": "^2.0"
   },
   "suggest": {
     "trntv/yii2-debug-xhprof": "dev-master@dev"
