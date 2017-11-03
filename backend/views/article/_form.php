@@ -67,7 +67,7 @@ use yii\bootstrap\ActiveForm;
     <?php echo $form->field($model, 'published_at')->widget(
         DateTimeWidget::className(),
         [
-            'phpDatetimeFormat' => 'yyyy-MM-dd\'T\'HH:mm:ssZZZZZ'
+            //'phpDatetimeFormat' => 'yyyy-MM-dd\'T\'HH:mm:ssZZZZZ'
         ]
     ) ?>
 
