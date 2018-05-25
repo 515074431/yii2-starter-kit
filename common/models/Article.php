@@ -3,7 +3,6 @@
 namespace common\models;
 
 use common\models\query\ArticleQuery;
-use phpDocumentor\Reflection\Types\Self_;
 use trntv\filekit\behaviors\UploadBehavior;
 use Yii;
 use yii\behaviors\BlameableBehavior;
@@ -11,8 +10,6 @@ use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
-use yii\helpers\Console;
-use yii\httpclient\Client;
 /**
  * This is the model class for table "article".
  *
@@ -69,6 +66,17 @@ class Article extends ActiveRecord
     public static function find()
     {
         return new ArticleQuery(get_called_class());
+    }
+
+    /**
+     * @return array statuses list
+     */
+    public static function statuses()
+    {
+        return [
+            self::STATUS_DRAFT => Yii::t('common', 'Draft'),
+            self::STATUS_PUBLISHED => Yii::t('common', 'Published'),
+        ];
     }
 
     /**
@@ -186,7 +194,4 @@ class Article extends ActiveRecord
     {
         return $this->hasMany(ArticleAttachment::className(), ['article_id' => 'id']);
     }
-
-
-
 }

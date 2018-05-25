@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\models\query\PageQuery;
 use Yii;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -33,14 +34,33 @@ class Page extends ActiveRecord
     }
 
     /**
+     * @return PageQuery
+     */
+    public static function find()
+    {
+        return new PageQuery(get_called_class());
+    }
+
+    /**
+     * @return array statuses list
+     */
+    public static function statuses()
+    {
+        return [
+            self::STATUS_DRAFT => Yii::t('common', 'Draft'),
+            self::STATUS_PUBLISHED => Yii::t('common', 'Published'),
+        ];
+    }
+
+    /**
      * @inheritdoc
      */
     public function behaviors()
     {
         return [
-            TimestampBehavior::className(),
+            TimestampBehavior::class,
             'slug' => [
-                'class' => SluggableBehavior::className(),
+                'class' => SluggableBehavior::class,
                 'attribute' => 'title',
                 'ensureUnique' => true,
                 'immutable' => true

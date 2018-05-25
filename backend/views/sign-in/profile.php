@@ -13,9 +13,9 @@ $this->title = Yii::t('backend', 'Edit profile')
 
 <div class="user-profile-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin() ?>
 
-    <?php echo $form->field($model, 'picture')->widget(\trntv\filekit\widget\Upload::classname(), [
+    <?php echo $form->field($model, 'picture')->widget(\trntv\filekit\widget\Upload::class, [
         'url'=>['avatar-upload']
     ]) ?>
 
@@ -36,6 +36,6 @@ $this->title = Yii::t('backend', 'Edit profile')
         <?php echo Html::submitButton(Yii::t('backend', 'Update'), ['class' => 'btn btn-primary']) ?>
     </div>
 
-    <?php ActiveForm::end(); ?>
+    <?php ActiveForm::end() ?>
 
 </div>

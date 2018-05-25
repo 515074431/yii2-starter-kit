@@ -28,7 +28,7 @@ $this->params['body-class'] = 'login-page';
                 'name' => 'login-button'
             ]) ?>
         </div>
-        <?php ActiveForm::end(); ?>
+        <?php ActiveForm::end() ?>
     </div>
 
 </div>

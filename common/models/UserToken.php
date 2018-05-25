@@ -23,19 +23,10 @@ use yii\db\ActiveRecord;
  */
 class UserToken extends ActiveRecord
 {
-    const TOKEN_LENGTH = 40;
-    const TYPE_ACTIVATION = 'activation';
-    const TYPE_PASSWORD_RESET = 'password_reset';
-    const TYPE_XIAOCONG = 'xiaocong';
-    const TYPE_MILIAO = 'miliao';
-
-
-    public static function types(){
-        return [
-            self::TYPE_XIAOCONG => '小葱',
-            self::TYPE_MILIAO => '蜜聊',
-        ];
-    }
+    public const TYPE_ACTIVATION = 'activation';
+    public const TYPE_PASSWORD_RESET = 'password_reset';
+    public const TYPE_LOGIN_PASS = 'login_pass';
+    protected const TOKEN_LENGTH = 40;
 
     /**
      * @inheritdoc
@@ -58,11 +49,71 @@ class UserToken extends ActiveRecord
     /**
      * @return UserTokenQuery
      */
-    /*public static function find()
+    public static function find()
     {
         return new UserTokenQuery(get_called_class());
-    }*/
+    }
 
+    /**
+     * @param mixed $user_id
+     * @param string $type
+     * @param int|null $duration
+     * @return bool|UserToken
+     * @throws \yii\base\Exception
+     */
+    public static function create($user_id, $type, $duration = null)
+    {
+        $model = new self;
+        $model->setAttributes([
+            'user_id' => $user_id,
+            'type' => $type,
+            'token' => Yii::$app->security->generateRandomString(self::TOKEN_LENGTH),
+            'expire_at' => $duration ? time() + $duration : null
+        ]);
+
+        if (!$model->save()) {
+            throw new InvalidCallException;
+        };
+
+        return $model;
+
+    }
+
+    /**
+     * @param $token
+     * @param $type
+     * @return bool|User
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public static function use($token, $type)
+    {
+        $model = self::find()
+            ->where(['token' => $token])
+            ->andWhere(['type' => $type])
+            ->andWhere(['>', 'expire_at', time()])
+            ->one();
+
+        if ($model === null) {
+            return null;
+        }
+
+        $user = $model->user;
+        $model->delete();
+
+        return $user;
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::class
+        ];
+    }
 
     /**
      * @inheritdoc
@@ -102,49 +153,12 @@ class UserToken extends ActiveRecord
     }
 
     /**
-     * @param mixed $user_id
-     * @param string $type
-     * @param int|null $duration
-     * @return bool|UserToken
-     */
-    public static function create($user_id, $type, $duration = null)
-    {
-        $userTokenExpire = Yii::$app->params['user.TokenExpire'];
-        $model = self::find()->where([
-            'user_id' => $user_id,
-            'type' => $type,
-            //'expire_at' => $duration ? time() + $duration : null
-        ])->one();
-        if($model){
-            $model->token = Yii::$app->security->generateRandomString(self::TOKEN_LENGTH);
-            $model->renew($userTokenExpire);
-            $model->save();
-            return $model;
-        }
-        $model = new self;
-        $model->setAttributes([
-            'user_id' => $user_id,
-            'type' => $type,
-            'token' => Yii::$app->security->generateRandomString(self::TOKEN_LENGTH),
-            'expire_at' => $userTokenExpire ? time() + $userTokenExpire : null
-        ]);
-
-        if (!$model->save()) {
-            throw new InvalidCallException;
-        };
-
-        return $model;
-
-    }
-
-    /**
      * @param int|null $duration
      */
-    public function renew($duration=null)
+    public function renew($duration)
     {
         $this->updateAttributes([
-            'expire_at' => $duration ? time() + $duration : null,
-            'updated_at' => time()
+            'expire_at' => $duration ? time() + $duration : null
         ]);
     }
 
@@ -154,13 +168,5 @@ class UserToken extends ActiveRecord
     public function __toString()
     {
         return $this->token;
-    }
-
-    /**
-     * 重置用户所有token过期时间
-     * @param $user_id
-     */
-    public static function resetExpire($user_id){
-            self::updateAll(['expire_at' => time()],"user_id = $user_id");
     }
 }

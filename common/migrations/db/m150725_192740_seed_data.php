@@ -5,9 +5,13 @@ use yii\db\Migration;
 
 class m150725_192740_seed_data extends Migration
 {
+    /**
+     * @return bool|void
+     * @throws \yii\base\Exception
+     */
     public function safeUp()
     {
-        /*$this->insert('{{%user}}', [
+        $this->insert('{{%user}}', [
             'id' => 1,
             'username' => 'webmaster',
             'email' => 'webmaster@example.com',
@@ -27,12 +31,12 @@ class m150725_192740_seed_data extends Migration
             'password_hash' => Yii::$app->getSecurity()->generatePasswordHash('manager'),
             'auth_key' => Yii::$app->getSecurity()->generateRandomString(),
             'access_token' => Yii::$app->getSecurity()->generateRandomString(40),
-            'status'=> User::STATUS_ACTIVE,
+            'status' => User::STATUS_ACTIVE,
             'created_at' => time(),
             'updated_at' => time()
-        ]);*/
+        ]);
         $this->insert('{{%user}}', [
-            'id' => 1,
+            'id' => 3,
             'username' => 'user',
             'email' => 'user@example.com',
             'mobile' => '15212345678',
@@ -51,14 +55,14 @@ class m150725_192740_seed_data extends Migration
             'city' => '开封市',
             'area' => '龙亭区'
         ]);
-        /*$this->insert('{{%user_profile}}', [
-            'user_id'=>2,
-            'locale'=>Yii::$app->sourceLanguage
+        $this->insert('{{%user_profile}}', [
+            'user_id' => 2,
+            'locale' => Yii::$app->sourceLanguage
         ]);
         $this->insert('{{%user_profile}}', [
-            'user_id'=>3,
-            'locale'=>Yii::$app->sourceLanguage
-        ]);*/
+            'user_id' => 3,
+            'locale' => Yii::$app->sourceLanguage
+        ]);
 
         $this->insert('{{%page}}', [
             'slug' => 'about',
@@ -78,45 +82,45 @@ class m150725_192740_seed_data extends Migration
         ]);
 
         $this->insert('{{%widget_menu}}', [
-            'key'=>'frontend-index',
-            'title'=>'Frontend index menu',
-            'items'=>json_encode([
+            'key' => 'frontend-index',
+            'title' => 'Frontend index menu',
+            'items' => json_encode([
                 [
-                    'label'=>'Get started with Yii2',
-                    'url'=>'http://www.yiiframework.com',
-                    'options'=>['tag'=>'span'],
-                    'template'=>'<a href="{url}" class="btn btn-lg btn-success">{label}</a>'
+                    'label' => 'Get started with Yii2',
+                    'url' => 'http://www.yiiframework.com',
+                    'options' => ['tag' => 'span'],
+                    'template' => '<a href="{url}" class="btn btn-lg btn-success">{label}</a>'
                 ],
                 [
-                    'label'=>'Yii2 Starter Kit on GitHub',
-                    'url'=>'https://github.com/trntv/yii2-starter-kit',
-                    'options'=>['tag'=>'span'],
-                    'template'=>'<a href="{url}" class="btn btn-lg btn-primary">{label}</a>'
+                    'label' => 'Yii2 Starter Kit on GitHub',
+                    'url' => 'https://github.com/trntv/yii2-starter-kit',
+                    'options' => ['tag' => 'span'],
+                    'template' => '<a href="{url}" class="btn btn-lg btn-primary">{label}</a>'
                 ],
                 [
-                    'label'=>'Find a bug?',
-                    'url'=>'https://github.com/trntv/yii2-starter-kit/issues',
-                    'options'=>['tag'=>'span'],
-                    'template'=>'<a href="{url}" class="btn btn-lg btn-danger">{label}</a>'
+                    'label' => 'Find a bug?',
+                    'url' => 'https://github.com/trntv/yii2-starter-kit/issues',
+                    'options' => ['tag' => 'span'],
+                    'template' => '<a href="{url}" class="btn btn-lg btn-danger">{label}</a>'
                 ]
 
             ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-            'status'=>\common\models\WidgetMenu::STATUS_ACTIVE
+            'status' => \common\models\WidgetMenu::STATUS_ACTIVE
         ]);
 
         $this->insert('{{%widget_text}}', [
-            'key'=>'backend_welcome',
-            'title'=>'Welcome to backend',
-            'body'=>'<p>Welcome to Yii2 Starter Kit Dashboard</p>',
-            'status'=>1,
-            'created_at'=> time(),
-            'updated_at'=> time(),
+            'key' => 'backend_welcome',
+            'title' => 'Welcome to backend',
+            'body' => '<p>Welcome to Yii2 Starter Kit Dashboard</p>',
+            'status' => 1,
+            'created_at' => time(),
+            'updated_at' => time(),
         ]);
 
         $this->insert('{{%widget_text}}', [
-            'key'=>'ads-example',
-            'title'=>'Google Ads Example Block',
-            'body'=>'<div class="lead">
+            'key' => 'ads-example',
+            'title' => 'Google Ads Example Block',
+            'body' => '<div class="lead">
                 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
                 <ins class="adsbygoogle"
                      style="display:block"
@@ -127,24 +131,24 @@ class m150725_192740_seed_data extends Migration
                 (adsbygoogle = window.adsbygoogle || []).push({});
                 </script>
             </div>',
-            'status'=>0,
-            'created_at'=> time(),
-            'updated_at'=> time(),
+            'status' => 0,
+            'created_at' => time(),
+            'updated_at' => time(),
         ]);
 
         $this->insert('{{%widget_carousel}}', [
-            'id'=>1,
-            'key'=>'index',
-            'status'=>\common\models\WidgetCarousel::STATUS_ACTIVE
+            'id' => 1,
+            'key' => 'index',
+            'status' => \common\models\WidgetCarousel::STATUS_ACTIVE
         ]);
 
         $this->insert('{{%widget_carousel_item}}', [
-            'carousel_id'=>1,
+            'carousel_id' => 1,
             'base_url' => Yii::getAlias('@frontendUrl'),
-            'path'=>'img/yii2-starter-kit.gif',
-            'type'=>'image/gif',
-            'url'=>'/',
-            'status'=>1
+            'path' => 'img/yii2-starter-kit.gif',
+            'type' => 'image/gif',
+            'url' => '/',
+            'status' => 1
         ]);
 
         $this->insert('{{%key_storage_item}}', [
@@ -171,11 +175,14 @@ class m150725_192740_seed_data extends Migration
         $this->insert('{{%key_storage_item}}', [
             'key' => 'frontend.maintenance',
             'value' => 'disabled',
-            'comment' => 'Set it to "true" to turn on maintenance mode'
+            'comment' => 'Set it to "enabled" to turn on maintenance mode'
         ]);
 
     }
 
+    /**
+     * @return bool|void
+     */
     public function safeDown()
     {
         $this->delete('{{%key_storage_item}}', [
@@ -192,19 +199,19 @@ class m150725_192740_seed_data extends Migration
         ]);
 
         $this->delete('{{%widget_carousel_item}}', [
-            'carousel_id'=>1
+            'carousel_id' => 1
         ]);
 
         $this->delete('{{%widget_carousel}}', [
-            'id'=>1
+            'id' => 1
         ]);
 
         $this->delete('{{%widget_text}}', [
-            'key'=>'backend_welcome'
+            'key' => 'backend_welcome'
         ]);
 
         $this->delete('{{%widget_menu}}', [
-            'key'=>'frontend-index'
+            'key' => 'frontend-index'
         ]);
 
         $this->delete('{{%article_category}}', [
@@ -216,11 +223,11 @@ class m150725_192740_seed_data extends Migration
         ]);
 
         $this->delete('{{%user_profile}}', [
-            'user_id' => [1]
+            'user_id' => [1, 2, 3]
         ]);
 
         $this->delete('{{%user}}', [
-            'id' => [1]
+            'id' => [1, 2, 3]
         ]);
     }
 }

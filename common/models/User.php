@@ -49,22 +49,6 @@ class User extends ActiveRecord implements IdentityInterface
     const EVENT_AFTER_SIGNUP = 'afterSignup';
     const EVENT_AFTER_LOGIN = 'afterLogin';
 
-    public $token = null;
-    public $type = null;
-
-    /**
-     * @param $type
-     */
-    public function setType($type){
-        $this->type = $type;
-    }
-
-    /**
-     * @return null
-     */
-    public function getType(){
-        return $this->type;
-    }
     /**
      * @inheritdoc
      */
@@ -74,11 +58,75 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id)
+    {
+        return static::find()
+            ->active()
+            ->andWhere(['id' => $id])
+            ->one();
+    }
+
+    /**
      * @return UserQuery
      */
     public static function find()
     {
         return new UserQuery(get_called_class());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return static::find()
+            ->active()
+            ->andWhere(['access_token' => $token])
+            ->one();
+    }
+
+    /**
+     * Finds user by username
+     *
+     * @param string $username
+     * @return User|array|null
+     */
+    public static function findByUsername($username)
+    {
+        return static::find()
+            ->active()
+            ->andWhere(['username' => $username])
+            ->one();
+    }
+
+    /**
+     * Finds user by username or email
+     *
+     * @param string $login
+     * @return User|array|null
+     */
+    public static function findByLogin($login)
+    {
+        return static::find()
+            ->active()
+            ->andWhere(['or', ['username' => $login], ['email' => $login]])
+            ->one();
+    }
+
+    /**
+     * Finds user by mobile
+     *
+     * @param string $mobile
+     * @return static|null
+     */
+    public static function findByMobile($mobile)
+    {
+        return static::find()
+            ->active()
+            ->andWhere(['mobile' => $mobile])
+            ->one();
     }
 
     /**
@@ -100,9 +148,9 @@ class User extends ActiveRecord implements IdentityInterface
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => 'access_token'
                 ],
-                'value' => $this->generateAccessToken()/*function () {
+                'value' => function () {
                     return Yii::$app->getSecurity()->generateRandomString(40);
-                }*/
+                }
             ]
         ];
     }
@@ -121,7 +169,6 @@ class User extends ActiveRecord implements IdentityInterface
             ]
         );
     }
-
 
     /**
      * @inheritdoc
@@ -164,123 +211,7 @@ class User extends ActiveRecord implements IdentityInterface
         return $this->hasOne(UserProfile::className(), ['user_id' => 'id']);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentity($id)
-    {
-        return static::find()
-            ->active()
-            ->andWhere(['id' => $id])
-            ->one();
-    }
-    /**
-     * 生成 api_token
-     */
-    public function generateAccessToken()
-    {
-        //return $this->access_token = Yii::$app->security->generateRandomString(29) . '_' . time();
-        return $this->access_token = Yii::$app->security->generateRandomString(40) ;
-    }
 
-    /**
-     * 获得userToken对象
-     * @param $token
-     * @param $type
-     * @return array|null|ActiveRecord
-     */
-    public static function userToken($token,$type){
-        return UserToken::find()->where(['token'=>$token,'type'=>$type])->andWhere(['>', 'expire_at', time()])->one();
-    }
-
-    /**
-     * 设置token
-     * @param string $type
-     */
-    public function setToken($type=UserToken::TYPE_ACTIVATION){
-        //生成用户token
-        $token = UserToken::create(
-            $this->id,
-            $type,
-            Time::SECONDS_IN_A_DAY
-        );
-        $this->token = $token->__toString();
-    }
-
-    /**
-     * 校验api_token是否有效
-     * @param $token
-     * @param int $type 类型
-     * @return bool
-     */
-    public static function accessTokenIsValid($token)
-    {
-        //$type=Yii::$app->request->get('type',UserToken::TYPE_ACTIVATION);
-        if (empty($token)) {
-            return false;
-        }
-        //$userToken = self::userToken($token,$type);
-        $userToken = UserToken::find()->where(['token'=>$token])->andWhere(['>','expire_at',time()])->one();
-        return !is_null($userToken);
-    }
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-
-        //$type=Yii::$app->request->get('type',UserToken::TYPE_ACTIVATION);
-        // 如果token无效的话，
-        if(!static::accessTokenIsValid($token)) {
-            throw new \yii\web\UnauthorizedHttpException("token 失效.");
-        }
-        //$userToken = static::userToken($token,$type);
-        $userToken = UserToken::find()->where(['token'=>$token])->andWhere(['>','expire_at',time()])->one();
-        return static::findOne($userToken->user_id);
-        //return static::userToken($token,$type)->getUser();
-    }
-
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
-    public static function findByUsername($username)
-    {
-        return static::find()
-            ->active()
-            ->andWhere(['username' => $username])
-            ->one();
-    }
-
-    /**
-     * Finds user by mobile
-     *
-     * @param string $mobile
-     * @return static|null
-     */
-    public static function findByMobile($mobile)
-    {
-        return static::find()
-            ->active()
-            ->andWhere(['mobile' => $mobile])
-            ->one();
-    }
-
-    /**
-     * Finds user by username or mobile or email
-     *
-     * @param string $login
-     * @return static|null
-     */
-    public static function findByLogin($login)
-    {
-        return static::find()
-            ->active()
-            ->andWhere(['or', ['username' => $login], ['mobile' => $login], ['email' => $login]])
-            ->one();
-    }
 
     /**
      * @inheritdoc
@@ -325,22 +256,6 @@ class User extends ActiveRecord implements IdentityInterface
     public function setPassword($password)
     {
         $this->password_hash = Yii::$app->getSecurity()->generatePasswordHash($password);
-        $this->generateAccessToken();
-
-    }
-    /**
-     * Generates password hash from password and sets it to the model
-     *
-     * @param string $password
-     */
-    public function reSetPassword($password)
-    {
-        $this->password = $password;
-        //修改所有token
-        //To Do
-        //UserToken::resetExpire($this->id,$this->type);
-        UserToken::resetExpire($this->id);
-
     }
 
     /**
@@ -386,14 +301,10 @@ class User extends ActiveRecord implements IdentityInterface
         $profile->locale = Yii::$app->language;
         $profile->load($profileData, '');
         $this->link('userProfile', $profile);
-
-        //生成用户token
-        $this->setToken($this->type);
-
         $this->trigger(self::EVENT_AFTER_SIGNUP);
         // Default role
-        //$auth = Yii::$app->authManager;;
-        //$auth->assign($auth->getRole(User::ROLE_USER), $this->getId());
+        $auth = Yii::$app->authManager;
+        $auth->assign($auth->getRole(User::ROLE_USER), $this->getId());
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace common\models;
 
 use common\models\query\TimelineEventQuery;
-use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
@@ -28,25 +27,25 @@ class TimelineEvent extends ActiveRecord
     }
 
     /**
+     * @return TimelineEventQuery
+     */
+    public static function find()
+    {
+        return new TimelineEventQuery(get_called_class());
+    }
+
+    /**
      * @return array
      */
     public function behaviors()
     {
         return [
             'timestamp' => [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => null
             ]
         ];
-    }
-
-    /**
-     * @return TimelineEventQuery
-     */
-    public static function find()
-    {
-        return new TimelineEventQuery(get_called_class());
     }
 
     /**

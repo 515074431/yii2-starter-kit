@@ -1,9 +1,9 @@
 <?php
 $config = [
-    'homeUrl'=>Yii::getAlias('@backendUrl'),
+    'homeUrl' => Yii::getAlias('@backendUrl'),
     'controllerNamespace' => 'backend\controllers',
-    'defaultRoute'=>'timeline-event/index',
-    'controllerMap'=>[
+    'defaultRoute' => 'timeline-event/index',
+    'controllerMap' => [
         'file-manager-elfinder' => [
             'class' => 'mihaildev\elfinder\Controller',
             'access' => ['manager'],
@@ -18,19 +18,20 @@ $config = [
             ]
         ]
     ],
-    'components'=>[
+    'components' => [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
         'request' => [
-            'cookieValidationKey' => env('BACKEND_COOKIE_VALIDATION_KEY')
+            'cookieValidationKey' => env('BACKEND_COOKIE_VALIDATION_KEY'),
+            'baseUrl' => env('BACKEND_BASE_URL')
         ],
         'user' => [
-            'class'=>'yii\web\User',
-            'identityClass' => 'common\models\AdminUser',
-            'loginUrl'=>['sign-in/login'],
+            'class' => yii\web\User::class,
+            'identityClass' => common\models\User::class,
+            'loginUrl' => ['sign-in/login'],
             'enableAutoLogin' => true,
-            'as afterLogin' => 'common\behaviors\LoginTimestampBehavior'
+            'as afterLogin' => common\behaviors\LoginTimestampBehavior::class
         ],
         //components数组中加入authManager组件,有PhpManager和DbManager两种方式,
         //PhpManager将权限关系保存在文件里,这里使用的是DbManager方式,将权限关系保存在数据库.
@@ -49,6 +50,25 @@ $config = [
         ],
         "sms" => [
             "class" => "zc\yii2Alisms\Module",
+        ],
+        'content' => [
+            'class' => backend\modules\content\Module::class,
+        ],
+        'widget' => [
+            'class' => backend\modules\widget\Module::class,
+        ],
+        'file' => [
+            'class' => backend\modules\file\Module::class,
+        ],
+        'system' => [
+            'class' => backend\modules\system\Module::class,
+        ],
+        'translation' => [
+            'class' => backend\modules\translation\Module::class,
+        ],
+        'rbac' => [
+            'class' => backend\modules\rbac\Module::class,
+            'defaultRoute' => 'rbac-auth-item/index',
         ]
     ],
     "aliases" => [
@@ -58,35 +78,35 @@ $config = [
         /*'class'=>'\common\behaviors\GlobalAccessBehavior',
         'rules'=>[
             [
-                'controllers'=>['sign-in'],
+                'controllers' => ['sign-in'],
                 'allow' => true,
                 'roles' => ['?'],
-                'actions'=>['login']
+                'actions' => ['login'],
             ],
             [
-                'controllers'=>['sign-in'],
+                'controllers' => ['sign-in'],
                 'allow' => true,
                 'roles' => ['@'],
-                'actions'=>['logout']
+                'actions' => ['logout'],
             ],
             [
-                'controllers'=>['site'],
+                'controllers' => ['site'],
                 'allow' => true,
                 'roles' => ['?', '@'],
-                'actions'=>['error']
+                'actions' => ['error'],
             ],
             [
-                'controllers'=>['debug/default'],
+                'controllers' => ['debug/default'],
                 'allow' => true,
                 'roles' => ['?'],
             ],
             [
-                'controllers'=>['user'],
+                'controllers' => ['user'],
                 'allow' => true,
                 'roles' => ['administrator'],
             ],
             [
-                'controllers'=>['user'],
+                'controllers' => ['user'],
                 'allow' => false,
             ],
             [
@@ -109,13 +129,13 @@ $config = [
 
 if (YII_ENV_DEV) {
     $config['modules']['gii'] = [
-        'class'=>'yii\gii\Module',
+        'class' => yii\gii\Module::class,
         'generators' => [
             'crud' => [
-                'class'=>'yii\gii\generators\crud\Generator',
+                'class'=>yii\gii\generators\crud\Generator::class,
                 'templates'=>[
                     'yii2-starter-kit' => Yii::getAlias('@backend/views/_gii/templates'),
-                    'yii2-starter-kit-copy-right' => '@vendor/zc/yii2-admin/_gii/templates',
+                    'yii2-starter-kit-copy-right' => '@vendor/zc/yii2-admin/_gii/templates'
                 ],
                 'template' => 'yii2-starter-kit',
                 'messageCategory' => 'backend'

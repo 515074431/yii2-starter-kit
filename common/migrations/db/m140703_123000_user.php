@@ -6,7 +6,10 @@ use yii\db\Migration;
 
 class m140703_123000_user extends Migration
 {
-    public function up()
+    /**
+     * @return bool|void
+     */
+    public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
@@ -47,7 +50,10 @@ class m140703_123000_user extends Migration
 
     }
 
-    public function down()
+    /**
+     * @return bool|void
+     */
+    public function safeDown()
     {
         $this->dropForeignKey('fk_user', '{{%user_profile}}');
         $this->dropTable('{{%user_profile}}');

@@ -1,19 +1,27 @@
 # Testing
 
 To run tests:
-
-- Create `yii2-starter-kit-test` database
-- Adjust `.env` file to set `TEST_DB_DSN`, `TEST_DB_USER` and `TEST_DB_PASSWORD` params
-- Setup application
+1. Start containers:
 ```
-php tests/codeception/bin/yii app/setup
+docker-compose up -d
 ```
-- Start web server
+2. Create `tests` database:
 ```
-php -S localhost:8080
+docker-compose exec db mysql -uroot -proot -e "CREATE DATABASE \`yii2-starter-kit-test\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci" 
 ```
-- Run tests:
+3. Build needed files
 ```
-cd tests
-./../vendor/bin/codecept run
+docker-compose exec app ./vendor/bin/codecept build
+```
+4. Setup application:
+```
+docker-compose exec app php tests/bin/yii app/setup --interactive=0
+```
+5. Start web server for acceptance tests (do not close bash session):
+```
+docker-compose exec app php -S localhost:8080
+```
+6. Run tests in separate window:
+```
+docker-compose exec app vendor/bin/codecept run
 ```

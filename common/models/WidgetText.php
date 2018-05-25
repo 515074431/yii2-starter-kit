@@ -30,19 +30,30 @@ class WidgetText extends ActiveRecord
     }
 
     /**
+     * @return array statuses list
+     */
+    public static function statuses()
+    {
+        return [
+            self::STATUS_DRAFT => Yii::t('common', 'Draft'),
+            self::STATUS_ACTIVE => Yii::t('common', 'Active'),
+        ];
+    }
+
+    /**
      * @inheritdoc
      */
     public function behaviors()
     {
         return [
-            TimestampBehavior::className(),
+            TimestampBehavior::class,
             'cacheInvalidate' => [
-                'class' => CacheInvalidateBehavior::className(),
+                'class' => CacheInvalidateBehavior::class,
                 'cacheComponent' => 'frontendCache',
                 'keys' => [
                     function ($model) {
                         return [
-                            self::className(),
+                            self::class,
                             $model->key
                         ];
                     }

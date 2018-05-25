@@ -4,7 +4,7 @@ namespace common\components\keyStorage;
 
 use Yii;
 use yii\base\Exception;
-use yii\base\InvalidParamException;
+use yii\base\InvalidArgumentException;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
@@ -35,7 +35,10 @@ class FormModel extends Model
     const TYPE_RADIOLIST = 'radioList';
     const TYPE_CHECKBOXLIST = 'checkboxList';
     const TYPE_WIDGET = 'widget';
-
+    /**
+     * @var string
+     */
+    public $keyStorage = 'keyStorage';
     /**
      * @var array
      */
@@ -44,16 +47,18 @@ class FormModel extends Model
      * @var array
      */
     protected $map = [];
-
-    /**
-     * @var string
-     */
-    public $keyStorage = 'keyStorage';
-
     /**
      * @var array
      */
     protected $attributes;
+
+    /**
+     * @return array
+     */
+    public function getKeys()
+    {
+        return $this->keys;
+    }
 
     /**
      * @param $keys
@@ -75,11 +80,38 @@ class FormModel extends Model
     }
 
     /**
-     * @return array
+     * @return null|object
+     * @throws \yii\base\InvalidConfigException
      */
-    public function getKeys()
+    protected function getKeyStorage()
     {
-        return $this->keys;
+        return Yii::$app->get($this->keyStorage);
+    }
+
+    /**
+     * Sets the named attribute value.
+     * @param string $name the attribute name
+     * @param mixed $value the attribute value.
+     * @throws InvalidArgumentException if the named attribute does not exist.
+     * @see hasAttribute()
+     */
+    public function setAttribute($name, $value)
+    {
+        if ($this->hasAttribute($name)) {
+            $this->attributes[$name] = $value;
+        } else {
+            throw new InvalidArgumentException(get_class($this) . ' has no attribute named "' . $name . '".');
+        }
+    }
+
+    /**
+     * Returns a value indicating whether the model has an attribute with the specified name.
+     * @param string $name the name of the attribute
+     * @return boolean whether the model has an attribute with the specified name.
+     */
+    public function hasAttribute($name)
+    {
+        return isset($this->attributes[$name]) || in_array($name, $this->attributes(), false);
     }
 
     /**
@@ -105,7 +137,7 @@ class FormModel extends Model
     {
         $rules = [];
         foreach ($this->keys as $attribute => $data) {
-            $attributeRules =  ArrayHelper::getValue($data, 'rules', []);
+            $attributeRules = ArrayHelper::getValue($data, 'rules', []);
             if (!empty($attributeRules)) {
                 foreach ($attributeRules as $rule) {
                     array_unshift($rule, $attribute);
@@ -153,12 +185,18 @@ class FormModel extends Model
     }
 
     /**
-     * @return null|object
-     * @throws \yii\base\InvalidConfigException
+     * Checks if a property value is null.
+     * This method overrides the parent implementation by checking if the named attribute is null or not.
+     * @param string $name the property name or the event name
+     * @return boolean whether the property value is null
      */
-    protected function getKeyStorage()
+    public function __isset($name)
     {
-        return Yii::$app->get($this->keyStorage);
+        try {
+            return $this->__get($name) !== null;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -166,7 +204,7 @@ class FormModel extends Model
      * This method is overridden so that attributes and related objects can be accessed like properties.
      *
      * @param string $name property name
-     * @throws \yii\base\InvalidParamException if relation name is wrong
+     * @throws \yii\base\InvalidArgumentException if relation name is wrong
      * @return mixed property value
      * @see getAttribute()
      */
@@ -198,21 +236,6 @@ class FormModel extends Model
     }
 
     /**
-     * Checks if a property value is null.
-     * This method overrides the parent implementation by checking if the named attribute is null or not.
-     * @param string $name the property name or the event name
-     * @return boolean whether the property value is null
-     */
-    public function __isset($name)
-    {
-        try {
-            return $this->__get($name) !== null;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    /**
      * Sets a component property to be null.
      * This method overrides the parent implementation by clearing
      * the specified attribute value.
@@ -226,16 +249,6 @@ class FormModel extends Model
     }
 
     /**
-     * Returns a value indicating whether the model has an attribute with the specified name.
-     * @param string $name the name of the attribute
-     * @return boolean whether the model has an attribute with the specified name.
-     */
-    public function hasAttribute($name)
-    {
-        return isset($this->attributes[$name]) || in_array($name, $this->attributes(), false);
-    }
-
-    /**
      * Returns the named attribute value.
      * If this record is the result of a query and the attribute is not loaded,
      * null will be returned.
@@ -246,21 +259,5 @@ class FormModel extends Model
     public function getAttribute($name)
     {
         return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
-    }
-
-    /**
-     * Sets the named attribute value.
-     * @param string $name the attribute name
-     * @param mixed $value the attribute value.
-     * @throws InvalidParamException if the named attribute does not exist.
-     * @see hasAttribute()
-     */
-    public function setAttribute($name, $value)
-    {
-        if ($this->hasAttribute($name)) {
-            $this->attributes[$name] = $value;
-        } else {
-            throw new InvalidParamException(get_class($this) . ' has no attribute named "' . $name . '".');
-        }
     }
 }

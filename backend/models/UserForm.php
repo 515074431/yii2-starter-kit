@@ -29,19 +29,19 @@ class UserForm extends Model
         return [
             ['username', 'filter', 'filter' => 'trim'],
             ['username', 'required'],
-            ['username', 'unique', 'targetClass' => User::className(), 'filter' => function ($query) {
+            ['username', 'unique', 'targetClass' => User::class, 'filter' => function ($query) {
                 if (!$this->getModel()->isNewRecord) {
-                    $query->andWhere(['not', ['id'=>$this->getModel()->id]]);
+                    $query->andWhere(['not', ['id' => $this->getModel()->id]]);
                 }
             }],
             ['username', 'string', 'min' => 2, 'max' => 255],
 
-	    ['email', 'filter', 'filter' => 'trim'],
+            ['email', 'filter', 'filter' => 'trim'],
             ['email', 'required'],
             ['email', 'email'],
-            ['email', 'unique', 'targetClass'=> User::className(), 'filter' => function ($query) {
+            ['email', 'unique', 'targetClass' => User::class, 'filter' => function ($query) {
                 if (!$this->getModel()->isNewRecord) {
-                    $query->andWhere(['not', ['id'=>$this->getModel()->id]]);
+                    $query->andWhere(['not', ['id' => $this->getModel()->id]]);
                 }
             }],
             ['mobile', 'filter', 'filter' => 'trim'],
@@ -122,7 +122,6 @@ class UserForm extends Model
             $isNewRecord = $model->getIsNewRecord();
             $model->username = $this->username;
             $model->email = $this->email;
-            $model->mobile = $this->mobile;
             $model->status = $this->status;
             if ($this->password) {
                 $model->setPassword($this->password);
@@ -133,15 +132,14 @@ class UserForm extends Model
             if ($isNewRecord) {
                 $model->afterSignup();
             }
-            /*注册前台用户先不设置角色*/
-            /*$auth = Yii::$app->authManager;
+            $auth = Yii::$app->authManager;
             $auth->revokeAll($model->getId());
 
             if ($this->roles && is_array($this->roles)) {
                 foreach ($this->roles as $role) {
                     $auth->assign($auth->getRole($role), $model->getId());
                 }
-            }*/
+            }
 
             return !$model->hasErrors();
         }

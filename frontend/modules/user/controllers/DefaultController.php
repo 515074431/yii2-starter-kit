@@ -20,7 +20,7 @@ class DefaultController extends Controller
     {
         return [
             'avatar-upload' => [
-                'class' => UploadAction::className(),
+                'class' => UploadAction::class,
                 'deleteRoute' => 'avatar-delete',
                 'on afterSave' => function ($event) {
                     /* @var $file \League\Flysystem\File */
@@ -30,7 +30,7 @@ class DefaultController extends Controller
                 }
             ],
             'avatar-delete' => [
-                'class' => DeleteAction::className()
+                'class' => DeleteAction::class
             ]
         ];
     }
@@ -42,7 +42,7 @@ class DefaultController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'rules' => [
                     [
                         'allow' => true,
@@ -72,11 +72,11 @@ class DefaultController extends Controller
             $locale = $model->getModel('profile')->locale;
             Yii::$app->session->setFlash('forceUpdateLocale');
             Yii::$app->session->setFlash('alert', [
-                'options' => ['class'=>'alert-success'],
+                'options' => ['class' => 'alert-success'],
                 'body' => Yii::t('frontend', 'Your account has been successfully saved', [], $locale)
             ]);
             return $this->refresh();
         }
-        return $this->render('index', ['model'=>$model]);
+        return $this->render('index', ['model' => $model]);
     }
 }

@@ -5,12 +5,15 @@
 
 namespace common\widgets;
 
+use cheatsheet\Time;
 use common\models\WidgetCarousel;
 use common\models\WidgetCarouselItem;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\bootstrap\Carousel;
+use yii\di\Instance;
 use yii\helpers\Html;
+use yii\web\AssetManager;
 
 /**
  * Class DbCarousel
@@ -22,6 +25,11 @@ class DbCarousel extends Carousel
      * @var
      */
     public $key;
+
+    /**
+     * @var string|array|callable|AssetManager
+     */
+    public $assetManager;
 
     /**
      * @var array
@@ -37,10 +45,11 @@ class DbCarousel extends Carousel
     public function init()
     {
         if (!$this->key) {
-            throw new InvalidConfigException;
+            throw new InvalidConfigException("key should be set");
         }
+        $this->assetManager = Instance::ensure($this->assetManager, AssetManager::class);
         $cacheKey = [
-            WidgetCarousel::className(),
+            WidgetCarousel::class,
             $this->key
         ];
         $items = Yii::$app->cache->get($cacheKey);
@@ -57,18 +66,19 @@ class DbCarousel extends Carousel
             foreach ($query->all() as $k => $item) {
                 /** @var $item \common\models\WidgetCarouselItem */
                 if ($item->path) {
-                    $items[$k]['content'] = Html::img($item->getImageUrl());
+                    $url = $this->publishItem($item);
+                    $items[$k]['content'] = Html::img($url);
                 }
 
                 if ($item->url) {
-                    $items[$k]['content'] = Html::a($items[$k]['content'], $item->url, ['target'=>'_blank']);
+                    $items[$k]['content'] = Html::a($items[$k]['content'], $item->url, ['target' => '_blank']);
                 }
 
                 if ($item->caption) {
                     $items[$k]['caption'] = $item->caption;
                 }
             }
-            Yii::$app->cache->set($cacheKey, $items, 60*60*24*365);
+            Yii::$app->cache->set($cacheKey, $items, Time::SECONDS_IN_A_YEAR);
         }
         $this->items = $items;
         parent::init();
@@ -89,5 +99,22 @@ class DbCarousel extends Carousel
             ]);
         }
         return Html::tag('div', $content, $this->options);
+    }
+
+    /**
+     * @param WidgetCarouselItem $item
+     *
+     * @return string
+     */
+    protected function publishItem($item)
+    {
+        if (!$item->asset_url) {
+            $url = Yii::$app->assetManager->publish($item->path);
+            $item->updateAttributes([
+                'asset_url' => $url[1]
+            ]);
+        }
+
+        return $item->asset_url;
     }
 }

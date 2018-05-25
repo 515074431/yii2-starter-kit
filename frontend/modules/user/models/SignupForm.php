@@ -6,9 +6,9 @@ use common\commands\SendEmailCommand;
 use common\models\User;
 use common\models\UserToken;
 use frontend\modules\user\Module;
+use Yii;
 use yii\base\Exception;
 use yii\base\Model;
-use Yii;
 use yii\helpers\Url;
 
 /**
@@ -42,7 +42,7 @@ class SignupForm extends Model
             ['username', 'filter', 'filter' => 'trim'],
             ['username', 'required'],
             ['username', 'unique',
-                'targetClass'=>'\common\models\User',
+                'targetClass' => '\common\models\User',
                 'message' => Yii::t('frontend', 'This username has already been taken.')
             ],
             ['username', 'string', 'min' => 2, 'max' => 255],
@@ -59,7 +59,7 @@ class SignupForm extends Model
             ['email', 'required'],
             ['email', 'email'],
             ['email', 'unique',
-                'targetClass'=> '\common\models\User',
+                'targetClass' => '\common\models\User',
                 'message' => Yii::t('frontend', 'This email address has already been taken.')
             ],
 
@@ -85,6 +85,7 @@ class SignupForm extends Model
      * Signs user up.
      *
      * @return User|null the saved model or null if saving fails
+     * @throws Exception
      */
     public function signup()
     {
@@ -96,7 +97,7 @@ class SignupForm extends Model
             $user->mobile = $this->mobile;
             $user->status = $shouldBeActivated ? User::STATUS_NOT_ACTIVE : User::STATUS_ACTIVE;
             $user->setPassword($this->password);
-            if(!$user->save()) {
+            if (!$user->save()) {
                 throw new Exception("User couldn't be  saved");
             };
             $user->afterSignup();
