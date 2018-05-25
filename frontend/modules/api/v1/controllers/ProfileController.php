@@ -93,6 +93,7 @@ class ProfileController extends ActiveController
             ]*/
             'avatar-upload' => [
                 'class' => UploadAction::className(),
+                'multiple' => false,
                 'deleteRoute' => 'avatar-delete',
                 'on afterSave' => function ($event) {
                     /* @var $file \League\Flysystem\File */
