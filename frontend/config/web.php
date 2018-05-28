@@ -10,6 +10,12 @@ $config = [
             'shouldBeActivated' => false,
             'enableLoginByPass' => false,
         ],
+        'api' => [
+            'class' => 'frontend\modules\api\Module',
+            'modules' => [
+                'v1' => 'frontend\modules\api\v1\Module'
+            ]
+        ]
     ],
     'controllerMap' => [
 

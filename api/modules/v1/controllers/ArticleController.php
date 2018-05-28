@@ -1,14 +1,11 @@
 <?php
-
 namespace api\modules\v1\controllers;
 
+use Yii;
 use api\modules\v1\resources\Article;
 use yii\data\ActiveDataProvider;
 use yii\rest\ActiveController;
-use yii\rest\IndexAction;
-use yii\rest\OptionsAction;
-use yii\rest\Serializer;
-use yii\rest\ViewAction;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 
 /**
@@ -25,7 +22,7 @@ class ArticleController extends ActiveController
      * @var array
      */
     public $serializer = [
-        'class' => Serializer::class,
+        'class' => 'yii\rest\Serializer',
         'collectionEnvelope' => 'items'
     ];
 
@@ -36,17 +33,17 @@ class ArticleController extends ActiveController
     {
         return [
             'index' => [
-                'class' => IndexAction::class,
+                'class' => 'yii\rest\IndexAction',
                 'modelClass' => $this->modelClass,
                 'prepareDataProvider' => [$this, 'prepareDataProvider']
             ],
             'view' => [
-                'class' => ViewAction::class,
+                'class' => 'yii\rest\ViewAction',
                 'modelClass' => $this->modelClass,
                 'findModel' => [$this, 'findModel']
             ],
             'options' => [
-                'class' => OptionsAction::class
+                'class' => 'yii\rest\OptionsAction'
             ]
         ];
     }
@@ -76,7 +73,7 @@ class ArticleController extends ActiveController
     {
         $model = Article::find()
             ->published()
-            ->andWhere(['id' => (int)$id])
+            ->andWhere(['id' => (int) $id])
             ->one();
         if (!$model) {
             throw new HttpException(404);

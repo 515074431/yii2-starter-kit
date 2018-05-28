@@ -105,15 +105,6 @@ class UserToken extends ActiveRecord
         return $user;
     }
 
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            TimestampBehavior::class
-        ];
-    }
 
     /**
      * @inheritdoc

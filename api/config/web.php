@@ -7,6 +7,11 @@ $config = [
     'modules' => [
         'v1' => \api\modules\v1\Module::class
     ],
+    'controllerMap' => [
+
+        'sms-api' => 'zc\yii2Alisms\controllers\ApiController',
+
+    ],
     'components' => [
         'errorHandler' => [
             'errorAction' => 'site/error'
@@ -22,6 +27,9 @@ $config = [
         ],
         'request' => [
             'enableCookieValidation' => false,
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ]
         ],
         'user' => [
             'class' => yii\web\User::class,

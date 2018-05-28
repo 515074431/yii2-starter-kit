@@ -208,7 +208,7 @@ $bundle = BackendAsset::register($this);
                                         'label'=>Yii::t('backend', 'Logs'),
                                         'url'=>['/log/index'],
                                         'icon'=>'<i class="fa fa-angle-double-right"></i>',
-                                        'badge'=>\backend\models\SystemLog::find()->count(),
+                                        'badge'=>SystemLog::find()->count(),
                                         'badgeBgClass'=>'label-danger',
                                     ],
                                 ]
