@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use api\modules\v1\models\ChangePasswordForm;
 use common\commands\SendEmailCommand;
 use common\models\User;
 use common\models\UserToken;
@@ -151,11 +152,11 @@ class SignInController extends ActiveController
      */
     public function actionSignup()
     {
-//        $key = "SMS_1_15618769991";
-//        $cache = \Yii::$app->cache;
-//        $cacheCode = $cache->get($key);
-        //$cache = \Yii::$app->cache;
-        //var_dump([1 ,15618769991, $cacheCode,$cache]);exit;
+        /*$key = "SMS_1_15618769991";
+        $cache = \Yii::$app->cache;
+        $cacheCode = $cache->get($key);
+        $cache = \Yii::$app->cache;
+        var_dump([1 ,15618769991, $cacheCode,$cache]);exit;*/
 
         $model = new SignupForm();
         if ($model->load(Yii::$app->request->post(),'')) {
@@ -222,8 +223,8 @@ class SignInController extends ActiveController
     }
 
     /**
-     * 修改密码 根据验证码重置密码
-     * @param $token
+     * 重置密码 根据验证码重置密码
+     * @param post {mobile,code,password,smsid}
      * @return string|Response
      * @throws BadRequestHttpException
      */
@@ -234,6 +235,36 @@ class SignInController extends ActiveController
 
         if ($model->load(Yii::$app->request->post(),'') && $model->validate() ) {
             $user =  $model->resetPassword();
+            if($user){
+                return ['msg'=>'修改成功，请重新登录。'];
+                return [
+                    'id' => $user->id,
+                    'access_token' => $user->access_token,
+                ];
+            }else{
+                return $model->errors;
+            }
+
+        }else{
+            return $model->errors;
+        }
+
+    }
+
+    /**
+     * 修改密码
+     * @param $token
+     * @return string|Response
+     * @throws BadRequestHttpException
+     */
+    public function actionChangePassword()
+    {
+        $model = new ChangePasswordForm();
+
+
+        if ($model->load(Yii::$app->request->post(),'') && $model->validate() ) {
+            $model->user = Yii::$app->user->getIdentity();
+            $user =  $model->changePassword();
             if($user){
                 return ['msg'=>'修改成功，请重新登录。'];
                 return [

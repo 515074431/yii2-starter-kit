@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use api\modules\v1\models\ChangePasswordForm;
 use common\models\User;
 use api\modules\v1\models\ResetPayPassForm;
 use api\modules\v1\resources\User as UserResource;
@@ -173,6 +174,36 @@ class ProfileController extends ActiveController
         }
 
     }
+    /**
+     * 修改密码
+     * @param $token
+     * @return string|Response
+     * @throws BadRequestHttpException
+     */
+    public function actionChangePassword()
+    {
+        $model = new ChangePasswordForm();
+
+
+        if ($model->load(Yii::$app->request->post(),'') && $model->validate() ) {
+            $model->user = Yii::$app->user->getIdentity();
+            $user =  $model->changePassword();
+            if($user){
+                return ['msg'=>'修改成功，请重新登录。'];
+                return [
+                    'id' => $user->id,
+                    'access_token' => $user->access_token,
+                ];
+            }else{
+                return $model->errors;
+            }
+
+        }else{
+            return $model->errors;
+        }
+
+    }
+
     /**
      * @param $id
      * @return null|static

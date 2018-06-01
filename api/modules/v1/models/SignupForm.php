@@ -135,7 +135,8 @@ class SignupForm extends Model
             if(!$user->save()) {
                 throw new Exception("User couldn't be  saved");
             }
-            $user->afterSignup();
+            $profileData = ['province'=>11,'city'=>1101,'area'=>110101];
+            $user->afterSignup($profileData);
             if ($shouldBeActivated) {
                 $token = UserToken::create(
                     $user->id,
